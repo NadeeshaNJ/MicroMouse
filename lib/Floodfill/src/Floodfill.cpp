@@ -1,0 +1,121 @@
+#include "Floodfill.h"
+#include <queue>
+#include <utility>
+using namespace std;
+
+void Floodfill::setWall(int row, int col, int direction) { //direction: 0 = north, 1 = east, 2 = south, 3 = west
+    if(direction == 0) maze.vertical_walls[row][col].first = 1; // North wall
+    if(direction == 1) maze.horizontal_walls[row][col].second = 1; // East wall
+    if(direction == 2) maze.vertical_walls[row][col].second = 1; // South wall
+    if(direction == 3) maze.horizontal_walls[row][col].first = 1; // West wall
+}
+void Floodfill::detectWalls(vector<int> sensorDistances, int row, int col, int direction){
+    if(row < 0 || row >= 16 || col < 0 || col >= 16) return; // out of bounds
+    if(sensorDistances[0] > 0 && sensorDistances[0] < wall_threshhold) {
+        setWall(row, col, (direction + 3) % 4);
+        Serial.print("Wall detected at ");
+        Serial.print((direction + 3) % 4);
+        Serial.print(" with distance: ");
+        Serial.println(sensorDistances[0]);
+    }
+    //if(sensorDistances[1] < wall_threshhold) setWall(row, col, direction);
+    if(sensorDistances[3] > 0 && sensorDistances[3] < wall_threshhold) {
+        setWall(row, col, direction);
+        Serial.print("Wall detected at ");
+        Serial.print((direction + 1) % 4);
+        Serial.print(" with distance: ");
+        Serial.println(sensorDistances[3]);
+    }
+
+    
+}
+
+void Floodfill::updateWall(int row, int col, bool front, bool left, bool right, int direction){ //direction: 0 = north, 1 = east, 2 = south, 3 = west
+    if(row < 0 || row >= 16 || col < 0 || col >= 16) return; // out of bounds
+    if(front) setWall(row, col, direction);
+    if(left) setWall(row, col, (direction + 3) % 4);
+    if(right) setWall(row, col, (direction + 1) % 4);
+}
+
+void Floodfill::floodfill() {
+    queue<pair<int, int>> q;    
+
+    for (auto& row : maze.manhattan_distances)
+        row.fill(255); // Re-initialize all distances to a large number
+
+    maze.manhattan_distances[8][8] = 0; //row,column
+    maze.manhattan_distances[8][9] = 0;
+    maze.manhattan_distances[9][8] = 0;
+    maze.manhattan_distances[9][9] = 0; // Goal
+    
+    q.push({8, 8}); q.push({8, 9}); q.push({9, 8}); q.push({9, 9});       
+
+    array<array<bool, 16>, 16> reached = {};
+    reached[8][8] = reached[8][9] = reached[9][8] = reached[9][9] = true; // Marking the goal cells as reached
+    
+    // BFS to fill the manhattan distances
+    while(!q.empty()){
+        pair<int,int> cell = q.front();
+        q.pop();
+
+        if(cell.first >= 16 || cell.second >= 16) continue; // out of bounds
+
+        if(cell.second > 0 && !maze.horizontal_walls[cell.first][cell.second].first && !reached[cell.first][cell.second - 1]) {// No wall to the left
+            maze.manhattan_distances[cell.first][cell.second - 1] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            q.push({cell.first, cell.second - 1});
+            reached[cell.first][cell.second - 1] = true; // Marking the cell as reached            
+        }
+        if(cell.first > 0 && !maze.vertical_walls[cell.first][cell.second].first && !reached[cell.first - 1][cell.second]) {// No wall above
+            maze.manhattan_distances[cell.first - 1][cell.second] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            q.push({cell.first - 1, cell.second});
+            reached[cell.first - 1][cell.second] = true; // Marking the cell as reached
+        }
+        if(cell.second < 15 && !maze.horizontal_walls[cell.first][cell.second].second && !reached[cell.first][cell.second + 1]) {// No wall to the right
+            maze.manhattan_distances[cell.first][cell.second + 1] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            q.push({cell.first, cell.second + 1});
+            reached[cell.first][cell.second + 1] = true; // Marking the cell as reached
+        }
+        if(cell.first < 15 && !maze.vertical_walls[cell.first][cell.second].second && !reached[cell.first + 1][cell.second]) {// No wall below
+            maze.manhattan_distances[cell.first + 1][cell.second] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            q.push({cell.first + 1, cell.second});
+            reached[cell.first + 1][cell.second] = true; // Marking the cell as reached
+        }
+    }
+}
+bool Floodfill::hasWall(int row, int col, int dir) {
+    if(dir == 0) return maze.vertical_walls[row][col].first; // North wall
+    if(dir == 1) return maze.horizontal_walls[row][col].second; // East wall
+    if(dir == 2) return maze.vertical_walls[row][col].second; // South wall
+    if(dir == 3) return maze.horizontal_walls[row][col].first; // West wall
+    return false; // No walls
+}
+
+int Floodfill::getNextMove(int row, int col /*int direction //for optimize movement(for later improvement)*/) {
+    int minDist = 255;
+    int bestDirection = -1;
+
+    // int nextRow = row;
+    // int nextCol = col;
+
+    if(!hasWall(row, col, 0) && maze.manhattan_distances[row - 1][col] < minDist) {
+        minDist = maze.manhattan_distances[row - 1][col];
+        bestDirection = 0;
+    }
+    if(!hasWall(row, col, 1) && maze.manhattan_distances[row][col + 1] < minDist) {
+        minDist = maze.manhattan_distances[row][col + 1];
+        bestDirection = 1;
+    }
+    if(!hasWall(row, col, 2) && maze.manhattan_distances[row + 1][col] < minDist) {
+        minDist = maze.manhattan_distances[row + 1][col];
+        bestDirection = 2;
+    }
+    if(!hasWall(row, col, 3) && maze.manhattan_distances[row][col - 1] < minDist) {
+        minDist = maze.manhattan_distances[row][col - 1];
+        bestDirection = 3;
+    }
+
+    Serial.print("Let's move to the direction coded as ");
+    Serial.println(bestDirection);
+
+    return bestDirection; // Return the best direction to move based on the minimum distance
+}

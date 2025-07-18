@@ -1,0 +1,56 @@
+read sensors
+if left distance more than a cell && not reached -> turn left
+else if forward distance more than a cell -> go a cell forward -> mark the cell visited
+else if right distance more than a cell && not reached -> turn right 
+else if 
+else turn around -
+------------------------------------------------------------------
+------------starting from northest position---------------
+read sensors
+maze[][]
+i=0
+j=0 
+pos=maze[i][j]
+if front free -> move forward,tick the direction(north/south/..) of the cell[i][j], tick anti direction of the cell[i+1][j], i++, pos=maze[i]+[j]
+else if left free -> turn left, move forward, 
+
+
+
+grid floodfill(std::array<std::array<int, 16>, 16> &maze, int start_x, int start_y) {
+    grid result;
+    std::queue<std::pair<int, int>> q;
+    q.push({start_x, start_y});
+    
+    // Initialize walls and distances
+    for (int i = 0; i < 16; ++i) {
+        for (int j = 0; j < 16; ++j) {
+            result.horizontal_walls[i][j] = maze[i][j] & 1; // Horizontal wall
+            result.vertical_walls[i][j] = (maze[i][j] >> 1) & 1; // Vertical wall
+            result.manhattan_distances[i][j] = -1; // Unvisited
+        }
+    }
+    
+    result.manhattan_distances[start_x][start_y] = 0;
+
+    while (!q.empty()) {
+        auto [x, y] = q.front();
+        q.pop();
+
+        // Check all four directions
+        for (int dx = -1; dx <= 1; dx += 2) { // Left and Right
+            if (dx == -1 && result.horizontal_walls[x][y] == 0 && x > 0) { // Left
+                if (result.manhattan_distances[x - 1][y] == -1) {
+                    result.manhattan_distances[x - 1][y] = result.manhattan_distances[x][y] + 1;
+                    q.push({x - 1, y});
+                }
+            } else if (dx == 1 && result.horizontal_walls[x + 1][y] == 0 && x < 15) { // Right
+                if (result.manhattan_distances[x + 1][y] == -1) {
+                    result.manhattan_distances[x + 1][y] = result.manhattan_distances[x][y] + 1;
+                    q.push({x + 1, y});
+                }
+            }
+        }
+
+        for (int dy = -1; dy <= 1; dy += 2) { // Up and Down
+            if (dy == -1 && result.vertical_walls[x][y] == 0 && y > 0) { // Up
+                if (result.manhattan

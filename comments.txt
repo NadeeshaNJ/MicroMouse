@@ -1,0 +1,4 @@
+//use direction in getNextMove function in Floodfill library for improved movement 
+where multiple path are available for the robot an it should always try to select the path in front of it 
+
+// direction: 0 = north, 1 = east, 2 = south, 3 = west

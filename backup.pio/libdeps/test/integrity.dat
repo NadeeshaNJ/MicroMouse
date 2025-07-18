@@ -1,0 +1,5 @@
+esp32async/AsyncTCP@^3.4.5
+adafruit/Adafruit_VL6180X@^1.4.4
+mathieucarbou/MycilaWebSerial@^8.1.1
+SPI
+adafruit/Adafruit BusIO@^1.17.2
