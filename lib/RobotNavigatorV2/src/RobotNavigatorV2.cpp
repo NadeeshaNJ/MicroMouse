@@ -47,7 +47,16 @@ void RobotNavigatorV2::calculatePID(long error) {
     previousTime = currentTime;
 
 }
+void RobotNavigatorV2::moveForward() {
+    Serial.println("Moving Forward");
 
+    resetEncoders();
+
+    leftMotor->setDirection(1);
+    rightMotor->setDirection(1);
+    leftMotor->runMotor();
+    rightMotor->runMotor();
+}
 void RobotNavigatorV2::go(int& facingDirection, int direction) {
     if (direction == -1) return;
     int diff = (facingDirection - direction + 4) % 4;
@@ -59,9 +68,4 @@ void RobotNavigatorV2::go(int& facingDirection, int direction) {
     moveForward();
 
     updatePosition(row, col, facingDirection, direction);
-}
-void RobotNavigatorV2::moveForward() {
-    Serial.println("Moving Forward");
-
-    resetEncoders();
 }
