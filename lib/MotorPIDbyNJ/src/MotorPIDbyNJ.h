@@ -38,6 +38,7 @@ public:
     void setDirection(int dir) { direction = dir; }
     bool done() const { return isDone; }
 
+    void setSpeed(int speed); // Set PWM speed for the motor
     void runMotor(); // Apply motor power
     void update(); // Run motor with PID control
     void reachTarget(long target); // Set target and reach it

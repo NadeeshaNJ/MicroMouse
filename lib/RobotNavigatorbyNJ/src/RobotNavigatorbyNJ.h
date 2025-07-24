@@ -27,8 +27,7 @@ public:
     void turnAround();
 
     void wallFollowing(std::vector<int> sensorDistances);
-
-
+    
     void updatePosition(int& row, int& col, int& facingDirection, int direction);
 
     bool isIdle(); // checks if both motors are done

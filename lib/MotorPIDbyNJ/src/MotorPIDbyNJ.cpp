@@ -68,7 +68,7 @@ void MotorPIDbyNJ::calculatePID(long error) {
     // Update previous values
     previousError = error;
     previousTime = currentTime;
-
+    doneMotors();
     if (!isDone && abs(error) < tolerance) {
         analogWrite(pin1, 0);
         analogWrite(pin2, 0);
@@ -78,6 +78,14 @@ void MotorPIDbyNJ::calculatePID(long error) {
 
 }
 // Apply motor power
+void MotorPIDbyNJ::doneMotors() {
+  if (isDone) {
+    analogWrite(pin1, 0);
+    analogWrite(pin2, 0);
+  } else {
+    runMotor();
+  }
+}
 void MotorPIDbyNJ::runMotor() {
   if (direction == 1) {
     analogWrite(pin1, speed);
@@ -87,7 +95,15 @@ void MotorPIDbyNJ::runMotor() {
     analogWrite(pin2, speed);
   }
 }
-
+void MotorPIDbyNJ::setSpeed(int speed) {
+  if (direction == 1) {
+    analogWrite(pin1, speed);
+    analogWrite(pin2, 0);
+  } else {
+    analogWrite(pin1, 0);
+    analogWrite(pin2, speed);
+  }
+}
 void MotorPIDbyNJ::attachEncoderInterrupt(void (*ISR)()) {
   pinMode(encoderPin1, INPUT_PULLUP);
   pinMode(encoderPin2, INPUT_PULLUP);
