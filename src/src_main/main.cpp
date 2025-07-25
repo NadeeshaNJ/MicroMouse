@@ -2,7 +2,7 @@
 #include <VL6180XManagerV2.h>
 #include <Floodfill.h>
 #include <MotorPIDbyNJ.h>
-#include <RobotNavigatorbyNJ.h>
+#include <RobotNavigatorV2.h>
 
 int xshutPins[] = {32, 17, 15, 4};
 int sensorCorrections[] = {0, 6, 43, 26};  // mm to subtract from each sensor
@@ -12,7 +12,7 @@ Floodfill solveMaze;
 
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
 MotorPIDbyNJ rightMotor(14, 27, 19, 23);
-RobotNavigatorbyNJ Motors(&leftMotor, &rightMotor);
+RobotNavigatorV2 Motors(&leftMotor, &rightMotor);
 void updateLeftEncoder() { leftMotor.updateEncoder(); }
 void updateRightEncoder() { rightMotor.updateEncoder(); }
 
@@ -42,13 +42,12 @@ void loop() {
   
   solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
   solveMaze.floodfill();
-  int nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will also be updated from here
+  //int nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will also be updated from here
 
   if(firstTurn){
     Motors.resetEncoders();
     firstTurn = false;
   }
 
-  Motors.go(facingDirection, nextMove);
-  delay(500);
+  Motors.moveForward();
 }

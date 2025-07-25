@@ -26,13 +26,23 @@ public:
     MotorPIDbyNJ(int pin1, int pin2, int encoderPin1, int encoderPin2);
 
     void attachEncoderInterrupt(void (*ISR)());
+    void calculatePID(long error);
     void setPID(float kp, float ki, float kd, int tol);
+    void setTarget(long target);
 
     //control methods
     void updateEncoder();    
+    void setEncoderValue(long value) { encoderValue = value; }
+    long getEncoderValue() const { return encoderValue; }
+    void resetEncoder() { encoderValue = 0; }
+    void setDirection(int dir) { direction = dir; }
+    bool done() const { return isDone; }
 
     void setSpeed(int speed); // Set PWM speed for the motor
-   
+    void runMotor(); // Apply motor power
+    void update(); // Run motor with PID control
+    void reachTarget(long target); // Set target and reach it
+    
 
 };
 
