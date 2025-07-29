@@ -9,14 +9,14 @@ void GyroPID::begin() {
     Wire.begin();
     sensor.setWire(&Wire);
 
-
-    if (sensor.readId(&sensorId) == 0) {
-    Serial.print("Sensor ID: "); 
-    Serial.println(sensorId);
+    uint8_t sensorId;
+    int result;
+    result = sensor.readId(&sensorId);
+    if (result == 0) {
+        Serial.println("sensorId: " + String(sensorId));
     } else {
-    Serial.println("Sensor not found!");
+        Serial.println("Cannot read sensorId " + String(result));
     }
-
 
     sensor.beginAccel();
     sensor.beginGyro();
@@ -24,7 +24,6 @@ void GyroPID::begin() {
     // Initialize smoothed values to zero
     gyroX = gyroY = gyroZ = 0;
     accelX = accelY = accelZ = 0;
-
 }
 
 void GyroPID::update() {
@@ -50,3 +49,24 @@ float GyroPID::getGyroZ() { return gyroZ; }
 float GyroPID::getAccelX() { return accelX; }
 float GyroPID::getAccelY() { return accelY; }
 float GyroPID::getAccelZ() { return accelZ; }
+
+//float GyroPID::getYaw() { return atan2(accelY, accelZ) * 180 / M_PI; }
+float GyroPID::getYaw() {
+    // Yaw calculation using atan2 of accelY and accelX (for demonstration)
+    // You may want to use gyro integration or sensor fusion for better results
+    // Integrate gyroZ over time to estimate yaw (assuming update() is called at a fixed interval)
+    static float yaw = 0.0f;
+    static unsigned long lastUpdate = 0;
+    unsigned long now = millis();
+    float dt = (lastUpdate == 0) ? 0 : (now - lastUpdate) / 1000.0f; // seconds
+    lastUpdate = now;
+
+    // GyroZ is in degrees/sec, integrate to get degrees
+    yaw += (sensor.gyroZ() + gyroZ_Correction) * dt;
+
+    // Optionally, keep yaw in [-180, 180] range
+    if (yaw > 180.0f) yaw -= 360.0f;
+    if (yaw < -180.0f) yaw += 360.0f;
+
+    return yaw;
+}

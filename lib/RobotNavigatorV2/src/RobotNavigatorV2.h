@@ -15,8 +15,7 @@ private:
     int direction; // 0 = North, 1 = East, 2 = South, 3 = West
     int facingDirection;
     float integralEncoderError;
-    float sumWallError; // Integral of wall error for PID control
-    float diffWallError; // Derivative of wall error for PID control
+    float integralWallError;
     float directionL, directionR;
     float speedL, speedR;
     long previousTime;
@@ -32,10 +31,6 @@ private:
     int leftEncoderPID = 0;
     int rightEncoderPID = 0;
 
-    long targetL, targetR;
-    long integralLeftEncoderError, integralRightEncoderError;
-    long diffLeftEncoderError, diffRightEncoderError;
-
     int encoderPID;
 
 
@@ -45,6 +40,7 @@ public:
     void resetEncoders();         // Initialize starting move
     int calculateWallPID(std::vector<int> sensorDistances);
     void getEncoderPID();
+    void setTargets(long targetLeft, long targetRight); // Set targets for both motors
     void go(int& facingDirection, int direction); // Move in a given global direction
     void moveForward();  // Move forward in the current direction
     void moveBackward(); // Move backward in the current direction (not implemented)

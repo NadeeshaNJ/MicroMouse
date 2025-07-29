@@ -1,6 +1,7 @@
 #include <GyroPID.h>
 
-GyroPID gyro; // Uses default SDA=21, SCL=22
+GyroPID gyro; 
+//What I need is gyro Z axis
 
 void setup() {
   Serial.begin(115200);
