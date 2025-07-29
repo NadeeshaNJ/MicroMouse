@@ -48,8 +48,8 @@ void RobotNavigatorV2::moveForward() {
 
     speedL = constrain((leftEncoderPID - 5*calculateWallPID(sensorDistances)),0,255);
     speedR = constrain((rightEncoderPID + 5*calculateWallPID(sensorDistances)),0,255);
-    if(!leftMotor->isDone()) leftMotor->runMotor(speedL);
-    if(!rightMotor->isDone()) rightMotor->runMotor(speedR);
+    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
 
 }
 void RobotNavigatorV2::turnLeft() {
@@ -61,10 +61,6 @@ void RobotNavigatorV2::turnLeft() {
 void RobotNavigatorV2::turnRight() {
     Serial.println("Turning Right");
     resetEncoders();
-    leftMotor->setDirection(1);
-    rightMotor->setDirection(1);
-    leftMotor->reachTarget(4000);
-    rightMotor->reachTarget(400);
 }
 void RobotNavigatorV2::go(int& facingDirection, int direction) {
     if (direction == -1) return;

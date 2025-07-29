@@ -72,6 +72,6 @@ void MotorPIDbyNJ::runMotor(int speed){
         analogWrite(pin2, 0);
     }
 }
-bool MotorPIDbyNJ::isDone() {
+bool MotorPIDbyNJ::checkDone(){
     return abs(target - getEncoderValue()) < tolerance;
 }

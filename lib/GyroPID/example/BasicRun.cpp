@@ -25,5 +25,7 @@ void loop() {
   Serial.print(" Z: ");
   Serial.println(gyro.getAccelZ());
 
+  Serial.print("Yaw: ");
+  Serial.println(gyro.getYaw());
   delay(100);
 }

@@ -4,11 +4,13 @@
 #include <Arduino.h>
 #include <MotorPIDbyNJ.h>
 #include <vector>
+#include <GyroPID.h>
 
 class RobotNavigatorV2 {
 private:
     MotorPIDbyNJ* leftMotor;
     MotorPIDbyNJ* rightMotor;
+    GyroPID* imu;
 
     int row;
     int col;
@@ -47,8 +49,6 @@ public:
     void turnLeft();
     void turnRight();
     void turnAround();
-
-    void reachTargets(long targetLeft, long targetRight);
 
     void updatePosition(int& row, int& col, int& facingDirection, int direction);
 

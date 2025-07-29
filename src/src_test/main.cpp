@@ -1,6 +1,7 @@
 #include <GyroPID.h>
 
-GyroPID gyro; // Uses default SDA=21, SCL=22
+GyroPID gyro; 
+//What I need is gyro Z axis
 
 void setup() {
   Serial.begin(115200);
@@ -10,22 +11,8 @@ void setup() {
 void loop() {
   gyro.update();
 
-  // Serial.print("Gyro X: ");
-  // Serial.print(gyro.getGyroX());
-  // Serial.print(" Y: ");
-  // Serial.print(gyro.getGyroY());
-  // Serial.print(" Z: ");
-  // Serial.println(gyro.getGyroZ());
-
-  // Serial.print("Accel X: ");
-  // Serial.print(gyro.getAccelX());
-  // Serial.print(" Y: ");
-  // Serial.print(gyro.getAccelY());
-  // Serial.print(" Z: ");
-  // Serial.println(gyro.getAccelZ());
-
   Serial.print("Yaw: ");
-  Serial.println(gyro.getYaw());
+  Serial.print(gyro.getYaw());
+  Serial.println("°");
 
-  //delay(400);
 }

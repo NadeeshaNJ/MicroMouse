@@ -14,7 +14,7 @@ class GyroPID {
    void applyFilter(float &smoothedValue, float newValue, float alpha);
    const float alpha = 1; // smoothing factor for EMA
 
-   float gyroZ_Correction = 1.05;// Correction factor for gyro Z axis
+   float gyroZ_Correction = 0.891;// Correction factor for gyro Z axis
 
  public:
    GyroPID();

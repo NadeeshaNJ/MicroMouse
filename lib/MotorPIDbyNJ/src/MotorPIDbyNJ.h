@@ -21,7 +21,7 @@ private:
     int direction; // Direction of the motor, 1 for forward, -1 for backward
     bool isDone;
     long target;
-    int tolerance;    
+    int tolerance = 5; // 5mm Tolerance for PID control, can be adjusted
     long metricConverter = 25.6; // Conversion factor for encoder value, can be adjusted (25.6 encoder = 1 mm)
 
 public:
@@ -36,10 +36,10 @@ public:
     long getEncoderValue() const { return encoderValue; }
     void resetEncoder(){encoderValue = 0;}
     void setDirection(int dir) { direction = dir; }
-    void setSpeed(int speed); // Set PWM speed for the motor
+    void setSpeed(int speed){this->speed = speed;}; // Set PWM speed for the motor
     void setTarget(long target) { this->target = target; }
     void runMotor(int speed);
-    bool isDone();
+    bool checkDone();
 };
 
 #endif

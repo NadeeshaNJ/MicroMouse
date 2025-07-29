@@ -65,8 +65,8 @@ float GyroPID::getYaw() {
     yaw += (sensor.gyroZ() + gyroZ_Correction) * dt;
 
     // Optionally, keep yaw in [-180, 180] range
-    if (yaw > 180.0f) yaw -= 360.0f;
-    if (yaw < -180.0f) yaw += 360.0f;
+    if (yaw < -180.0f) yaw -= 360.0f;
+    if (yaw > 180.0f) yaw += 360.0f;
 
     return yaw;
 }
