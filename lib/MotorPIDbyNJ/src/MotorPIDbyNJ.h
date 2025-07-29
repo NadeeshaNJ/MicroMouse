@@ -29,8 +29,9 @@ public:
     void setPID(float kp, float ki, float kd, int tol);
 
     //control methods
-    void updateEncoder();    
-
+    int updateEncoder();    
+    void resetEncoder(){encoderValue = 0;}
+    void setDirection(int dir) { direction = dir; }
     void setSpeed(int speed); // Set PWM speed for the motor
    
 

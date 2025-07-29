@@ -4,10 +4,22 @@
 using namespace std;
 
 void Floodfill::setWall(int row, int col, int direction) { //direction: 0 = north, 1 = east, 2 = south, 3 = west
-    if(direction == 0) maze.vertical_walls[row][col].first = 1; // North wall
-    if(direction == 1) maze.horizontal_walls[row][col].second = 1; // East wall
-    if(direction == 2) maze.vertical_walls[row][col].second = 1; // South wall
-    if(direction == 3) maze.horizontal_walls[row][col].first = 1; // West wall
+    if(direction == 0) {
+        maze.vertical_walls[row][col].first = 1; // North wall
+        if(row-1 >= 0) maze.vertical_walls[row - 1][col].second = 1; // South wall of the cell above
+    }
+    if(direction == 1) {
+        maze.horizontal_walls[row][col].second = 1; // East wall
+        if(col + 1 < 16) maze.horizontal_walls[row][col + 1].first = 1; // West wall of the cell to the right
+    }
+    if(direction == 2) {
+        maze.vertical_walls[row][col].second = 1; // South wall
+        if(row + 1 < 16) maze.vertical_walls[row + 1][col].first = 1; // North wall of the cell below
+    }
+    if(direction == 3) {
+        maze.horizontal_walls[row][col].first = 1; // West wall
+        if(col - 1 >= 0) maze.horizontal_walls[row][col - 1].second = 1; // East wall of the cell to the left
+    }
 }
 void Floodfill::detectWalls(vector<int> sensorDistances, int row, int col, int direction){
     if(row < 0 || row >= 16 || col < 0 || col >= 16) return; // out of bounds
