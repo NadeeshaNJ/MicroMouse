@@ -14,10 +14,9 @@ private:
     int col;
     int direction; // 0 = North, 1 = East, 2 = South, 3 = West
     int facingDirection;
-    float integral;
+    float integralEncoderError;
     float sumWallError; // Integral of wall error for PID control
     float diffWallError; // Derivative of wall error for PID control
-    float kp, ki, kd;
     float directionL, directionR;
     float speedL, speedR;
     long previousTime;
@@ -27,14 +26,25 @@ private:
     float wallKi = 0.0; // Integral gain for wall following
     float wallKd = 0.05; // Derivative gain for wall following
 
-    bool isDone;
-    int tolerance; 
+    int leftMotorSpeed;
+    int rightMotorSpeed;
+
+    int leftEncoderPID = 0;
+    int rightEncoderPID = 0;
+
+    long targetL, targetR;
+    long integralLeftEncoderError, integralRightEncoderError;
+    long diffLeftEncoderError, diffRightEncoderError;
+
+    int encoderPID;
+
+
 public:
     RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right);
 
     void resetEncoders();         // Initialize starting move
-    void calculatePID(long error);
-    int PIDcontrol();            // Calculate PID control values
+    int calculateWallPID(std::vector<int> sensorDistances);
+    void getEncoderPID();
     void go(int& facingDirection, int direction); // Move in a given global direction
     void moveForward();  // Move forward in the current direction
     void moveBackward(); // Move backward in the current direction (not implemented)
@@ -42,8 +52,7 @@ public:
     void turnRight();
     void turnAround();
 
-    void wallFollowing(std::vector<int> sensorDistances);
-
+    void reachTargets(long targetLeft, long targetRight);
 
     void updatePosition(int& row, int& col, int& facingDirection, int direction);
 

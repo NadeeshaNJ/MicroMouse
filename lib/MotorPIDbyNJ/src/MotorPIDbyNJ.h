@@ -22,8 +22,8 @@ private:
     bool isDone;
     long target;
     int tolerance;    
-
     long metricConverter = 25.6; // Conversion factor for encoder value, can be adjusted (25.6 encoder = 1 mm)
+
 public:
     MotorPIDbyNJ(int pin1, int pin2, int encoderPin1, int encoderPin2);
 
@@ -33,12 +33,13 @@ public:
     //control methods
     int calculateEncoderPID();
     void updateEncoder();    
-    int getEncoderValue() const { return encoderValue; }
+    long getEncoderValue() const { return encoderValue; }
     void resetEncoder(){encoderValue = 0;}
     void setDirection(int dir) { direction = dir; }
     void setSpeed(int speed); // Set PWM speed for the motor
-   
-
+    void setTarget(long target) { this->target = target; }
+    void runMotor(int speed);
+    bool isDone();
 };
 
 #endif

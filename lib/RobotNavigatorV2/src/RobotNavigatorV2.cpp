@@ -9,66 +9,54 @@ void RobotNavigatorV2::resetEncoders() {
     leftMotor->resetEncoder();
     rightMotor->resetEncoder();
 }
-int RobotNavigatorV2::calculateEncoderPID() {
-    long leftEncoderValue = leftMotor->getEncoderValue();
-    long rightEncoderValue = rightMotor->getEncoderValue();
-    float leftError = targetL - leftEncoderValue;
-    float rightError = targetR - rightEncoderValue;
-
-    /////////////////////////////////////////////////
-    integralLeftEncoderError += leftError;
-    diffLeftEncoderError = leftError - previousLeftError;
-    integralRightEncoderError += rightError;
-    diffRightEncoderError = rightError - previousRightError;
-
+void RobotNavigatorV2::getEncoderPID() {
+    leftEncoderPID = leftMotor->calculateEncoderPID();
+    rightEncoderPID = rightMotor->calculateEncoderPID();
+}
+void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
+    leftMotor->setTarget(targetLeft);
+    rightMotor->setTarget(targetRight);
+}
+int RobotNavigatorV2::calculateWallPID(std::vector<int> sensorDistances) {
+    float wallError = (sensorDistances[0] - sensorDistances[4]);
+    
     long currentTime = micros();
     float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
     if (deltaTime <= 0.000001) deltaTime = 0.000001;     
     
     // Calculate derivative
-    float derivativeL = (leftError - previousLeftError) / deltaTime;
-    float derivativeR = (rightError - previousRightError) / deltaTime;
-
+    float derivative = (wallError - previousError) / deltaTime;
+    
     // Calculate integral
-    integralEncoderError += leftError * deltaTime;
-    integralEncoderError = constrain(integralEncoderError, -300, 300);  // Clamp integral
+    integralWallError += wallError * deltaTime;
+    integralWallError = constrain(integralWallError, -300, 300);  // Clamp integral
 
     // Calculate PID output
-    LeftEncoderPID = encoderKp * leftError + encoderKi * integralLeftEncoderError + encoderKd * derivativeL;
-    RightEncoderPID = encoderKp * rightError + encoderKi * integralRightEncoderError + encoderKd * derivativeR;
+    float wallPID = wallKp * wallError + wallKi * integralWallError + wallKd * derivative;
 
-    previousLeftError = leftError;
-    previousRightError = rightError;
+    previousError = wallError;
     previousTime = currentTime;
-    /////////////////////////////////////////////////
 
-}
-void RobotNavigatorV2::reachTargets(long targetLeft, long targetRight) {
-    leftMotorSpeed = leftMotor->reachTarget(targetLeft);
-    rightMotorSpeed = rightMotor->reachTarget(targetRight);
-    
+    return wallPID;
 }
 void RobotNavigatorV2::moveForward() {
     Serial.println("Moving Forward");
     
     resetEncoders();
-    int wallCorrection = wallPID();
-    reachTargets(4000, 4000);
-    speedL = constrain((leftMotorSpeed - 5*wallCorrection),0,255);
-    speedR = constrain((rightMotorSpeed + 5*wallCorrection),0,255);
-    leftMotor->setDirection(1);
-    rightMotor->setDirection(1);
-    leftMotor->setSpeed(speedL);
-    rightMotor->setSpeed(speedR);
-    
+
+    setTargets(180,180); //180 mm
+
+    speedL = constrain((leftEncoderPID - 5*calculateWallPID(sensorDistances)),0,255);
+    speedR = constrain((rightEncoderPID + 5*calculateWallPID(sensorDistances)),0,255);
+    if(!leftMotor->isDone()) leftMotor->runMotor(speedL);
+    if(!rightMotor->isDone()) rightMotor->runMotor(speedR);
+
 }
 void RobotNavigatorV2::turnLeft() {
     Serial.println("Turning Left");
     resetEncoders();
-    leftMotor->setDirection(1);
-    rightMotor->setDirection(1);
-    leftMotor->reachTarget(400);
-    rightMotor->reachTarget(4000);
+    leftMotor->runMotor(speedL);
+    rightMotor->runMotor(speedR);
 }
 void RobotNavigatorV2::turnRight() {
     Serial.println("Turning Right");
@@ -89,67 +77,4 @@ void RobotNavigatorV2::go(int& facingDirection, int direction) {
     moveForward();
 
     updatePosition(row, col, facingDirection, direction);
-}
- int RobotNavigatorV2::calculateWallPID(std::vector<int> sensorDistances) {
-    float wallError = (sensorDistances[0] - sensorDistances[3]);
-    sumWallError += wallError;
-    diffWallError = wallError - previousError;
-    
-    long currentTime = micros();
-    float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
-    if (deltaTime <= 0.000001) deltaTime = 0.000001;     
-    
-    // Calculate derivative
-    float derivative = (wallError - previousError) / deltaTime;
-    
-    // Calculate integral
-    sumWallError += wallError * deltaTime;
-    sumWallError = constrain(sumWallError, -300, 300);  // Clamp integral
-
-    // Calculate PID output
-    float u = wallKp * wallError + wallKi * sumWallError + wallKd * derivative;
-    
-    directionL = (u < 0) ? -1 : 1;
-    directionR = (u < 0) ? -1 : 1;
-    speedL = constrain((255 - 5*u),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
-    speedR = constrain((255 + 5*u),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
-
-    previousError = wallError;
-    previousTime = currentTime;
-//     long currentTime = micros();
-//     float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
-//     if (deltaTime <= 0.000001) deltaTime = 0.000001;     
-    
-//     // Calculate derivative
-//     float derivative = (error - previousError) / deltaTime;
-    
-//     // Calculate integral
-//     integral += error * deltaTime;
-//     integral = constrain(integral, -300, 300);  // Clamp integral
-    
-//     // Calculate PID output
-//     float u = kp * error + ki * integral + kd * derivative;
-//     //directionL = (u < 0) ? -1 : 1;
-//     //directionR = (u < 0) ? -1 : 1;
-//     directionR = directionL = 1;
-//     speedL = constrain((255 - 5*u),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
-//     speedR = constrain((255 + 5*u),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
-//     // Update previous values
-//   //   if (directionL == 1) {
-//   //   analogWrite(25, speedL);
-//   //   analogWrite(26, 0);
-//   // } else {
-//   //   analogWrite(25, 0);
-//   //   analogWrite(26, speedL);
-//   // }
-//   // if (directionR == 1) {
-//   //   analogWrite(14, speedR);
-//   //   analogWrite(27, 0);
-//   // } else {
-//   //   analogWrite(14, 0);
-//   //   analogWrite(27, speedR);
-//   // }
-//     previousError = error;
-//     previousTime = currentTime;
-
 }

@@ -9,12 +9,12 @@ MotorPIDbyNJ::MotorPIDbyNJ(int motorPin1, int motorPin2, int encPin1, int encPin
     encoderPin2 = encPin2;
 }
 
-// void MotorPIDbyNJ::setPID(float kp_val, float ki_val, float kd_val, int tol) {
-//     kp = kp_val;
-//     ki = ki_val;
-//     kd = kd_val;
-//     tolerance = tol;
-// }
+void MotorPIDbyNJ::setPID(float kp_val, float ki_val, float kd_val, int tol) {
+    kp = kp_val;
+    ki = ki_val;
+    kd = kd_val;
+    tolerance = tol;
+}
 
 void MotorPIDbyNJ::updateEncoder() {
     int MSB = digitalRead(encoderPin1);
@@ -28,7 +28,7 @@ void MotorPIDbyNJ::updateEncoder() {
     
     lastEncoded = encoded;
 }
-int MotorPIDbyNJ::getEncoderValue() const {
+long MotorPIDbyNJ::getEncoderValue() const {
     return encoderValue / metricConverter;
 }
 
@@ -43,24 +43,35 @@ int MotorPIDbyNJ::calculateEncoderPID() {
     long encoderValue = getEncoderValue();
     float error = target - encoderValue;
 
-    integralEncoderError += error;
-    diffEncoderError = error - previousError;
-
     long currentTime = micros();
     float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
     if (deltaTime <= 0.000001) deltaTime = 0.000001;     
     
     // Calculate derivative
-    float derivativeL = (error - previousError) / deltaTime;
+    float derivative = (error - previousError) / deltaTime;
 
     // Calculate integral
     integralEncoderError += error * deltaTime;
     integralEncoderError = constrain(integralEncoderError, -300, 300);  // Clamp integral
 
     // Calculate PID output
-    encoderPID = kp * error + ki * integralEncoderError + kd * derivativeL;
-
+    encoderPID = kp * error + ki * integralEncoderError + kd * derivative;
+    encoderPID = constrain(encoderPID, -255, 255); // Clamp PID output to motor speed range
+    
     previousError = error;
     previousTime = currentTime;
+
     return encoderPID;
+}
+void MotorPIDbyNJ::runMotor(int speed){
+    if(speed < 0) {
+        analogWrite(pin1, 0);
+        analogWrite(pin2, -speed);
+    } else {
+        analogWrite(pin1, speed);
+        analogWrite(pin2, 0);
+    }
+}
+bool MotorPIDbyNJ::isDone() {
+    return abs(target - getEncoderValue()) < tolerance;
 }
