@@ -9,31 +9,39 @@ void RobotNavigatorV2::resetEncoders() {
     leftMotor->resetEncoder();
     rightMotor->resetEncoder();
 }
+int RobotNavigatorV2::calculateEncoderPID() {
+    long leftEncoderValue = leftMotor->getEncoderValue();
+    long rightEncoderValue = rightMotor->getEncoderValue();
+    float leftError = targetL - leftEncoderValue;
+    float rightError = targetR - rightEncoderValue;
 
-int RobotNavigatorV2::wallPID(){
-    float wallError = (sensorDistances[0] - sensorDistances[3]);
+    /////////////////////////////////////////////////
+    integralLeftEncoderError += leftError;
+    diffLeftEncoderError = leftError - previousLeftError;
+    integralRightEncoderError += rightError;
+    diffRightEncoderError = rightError - previousRightError;
+
     long currentTime = micros();
     float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
     if (deltaTime <= 0.000001) deltaTime = 0.000001;     
     
     // Calculate derivative
-    float derivative = (wallError - previousError) / deltaTime;
-    
+    float derivativeL = (leftError - previousLeftError) / deltaTime;
+    float derivativeR = (rightError - previousRightError) / deltaTime;
+
     // Calculate integral
-    sumWallError += wallError * deltaTime;
-    sumWallError = constrain(sumWallError, -300, 300);  // Clamp integral
+    integralEncoderError += leftError * deltaTime;
+    integralEncoderError = constrain(integralEncoderError, -300, 300);  // Clamp integral
 
     // Calculate PID output
-    float wallCorrection = wallKp * wallError + wallKi * sumWallError + wallKd * diffWallError;
-    //directionL = (u < 0) ? -1 : 1;
-    //directionR = (u < 0) ? -1 : 1;
-    //directionR = directionL = 1;
-    //speedL = constrain((255 - 5*wallCorrection),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
-    //speedR = constrain((255 + 5*wallCorrection),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
+    LeftEncoderPID = encoderKp * leftError + encoderKi * integralLeftEncoderError + encoderKd * derivativeL;
+    RightEncoderPID = encoderKp * rightError + encoderKi * integralRightEncoderError + encoderKd * derivativeR;
 
-    previousError = wallError;
+    previousLeftError = leftError;
+    previousRightError = rightError;
     previousTime = currentTime;
-    return wallCorrection;
+    /////////////////////////////////////////////////
+
 }
 void RobotNavigatorV2::reachTargets(long targetLeft, long targetRight) {
     leftMotorSpeed = leftMotor->reachTarget(targetLeft);
@@ -52,6 +60,7 @@ void RobotNavigatorV2::moveForward() {
     rightMotor->setDirection(1);
     leftMotor->setSpeed(speedL);
     rightMotor->setSpeed(speedR);
+    
 }
 void RobotNavigatorV2::turnLeft() {
     Serial.println("Turning Left");
@@ -81,7 +90,32 @@ void RobotNavigatorV2::go(int& facingDirection, int direction) {
 
     updatePosition(row, col, facingDirection, direction);
 }
-// void RobotNavigatorV2::calculatePID(long error) {
+ int RobotNavigatorV2::calculateWallPID(std::vector<int> sensorDistances) {
+    float wallError = (sensorDistances[0] - sensorDistances[3]);
+    sumWallError += wallError;
+    diffWallError = wallError - previousError;
+    
+    long currentTime = micros();
+    float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
+    if (deltaTime <= 0.000001) deltaTime = 0.000001;     
+    
+    // Calculate derivative
+    float derivative = (wallError - previousError) / deltaTime;
+    
+    // Calculate integral
+    sumWallError += wallError * deltaTime;
+    sumWallError = constrain(sumWallError, -300, 300);  // Clamp integral
+
+    // Calculate PID output
+    float u = wallKp * wallError + wallKi * sumWallError + wallKd * derivative;
+    
+    directionL = (u < 0) ? -1 : 1;
+    directionR = (u < 0) ? -1 : 1;
+    speedL = constrain((255 - 5*u),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
+    speedR = constrain((255 + 5*u),0,255); //speed = constrain(abs(255 - 0.1*u),0,255); 
+
+    previousError = wallError;
+    previousTime = currentTime;
 //     long currentTime = micros();
 //     float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;    
 //     if (deltaTime <= 0.000001) deltaTime = 0.000001;     
@@ -118,4 +152,4 @@ void RobotNavigatorV2::go(int& facingDirection, int direction) {
 //     previousError = error;
 //     previousTime = currentTime;
 
-// }
+}

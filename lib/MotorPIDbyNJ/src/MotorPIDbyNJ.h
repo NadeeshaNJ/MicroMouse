@@ -13,15 +13,17 @@ private:
 
     float kp, ki, kd; //PID
     float previousError;
-    float integral;
+    float integralEncoderError;
+    float diffEncoderError;
     long previousTime;
-
+    int encoderPID;
     int speed; // Speed of the motor, 0-255    
     int direction; // Direction of the motor, 1 for forward, -1 for backward
     bool isDone;
     long target;
     int tolerance;    
 
+    long metricConverter = 25.6; // Conversion factor for encoder value, can be adjusted (25.6 encoder = 1 mm)
 public:
     MotorPIDbyNJ(int pin1, int pin2, int encoderPin1, int encoderPin2);
 
@@ -29,7 +31,9 @@ public:
     void setPID(float kp, float ki, float kd, int tol);
 
     //control methods
-    int updateEncoder();    
+    int calculateEncoderPID();
+    void updateEncoder();    
+    int getEncoderValue() const { return encoderValue; }
     void resetEncoder(){encoderValue = 0;}
     void setDirection(int dir) { direction = dir; }
     void setSpeed(int speed); // Set PWM speed for the motor
