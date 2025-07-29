@@ -1,34 +1,52 @@
 #include "GyroPID.h"
 
-GyroPID::GyroPID(int sda, int scl) {
-  sdaPin = sda;
-  sclPin = scl;
+GyroPID::GyroPID() {
+//   sdaPin = sda;
+//   sclPin = scl;
 }
 
 void GyroPID::begin() {
-  Wire.begin(sdaPin, sclPin);
-  sensor.setWire(&Wire);
-  sensor.beginAccel();
-  sensor.beginGyro();
-  sensor.beginMag();
+    Wire.begin();
+    sensor.setWire(&Wire);
+
+
+    if (sensor.readId(&sensorId) == 0) {
+    Serial.print("Sensor ID: "); 
+    Serial.println(sensorId);
+    } else {
+    Serial.println("Sensor not found!");
+    }
+
+
+    sensor.beginAccel();
+    sensor.beginGyro();
+
+    // Initialize smoothed values to zero
+    gyroX = gyroY = gyroZ = 0;
+    accelX = accelY = accelZ = 0;
+
 }
 
 void GyroPID::update() {
-  if (sensor.gyroUpdate() == 0) {
-    gyroX = sensor.gyroX();
-    gyroY = sensor.gyroY();
-    gyroZ = sensor.gyroZ();
-  }
+  sensor.accelUpdate();
+  sensor.gyroUpdate();
+
+  applyFilter(gyroX, sensor.gyroX(), alpha);
+  applyFilter(gyroY, sensor.gyroY(), alpha);
+  applyFilter(gyroZ, sensor.gyroZ(), alpha);
+
+  applyFilter(accelX, sensor.accelX(), alpha);
+  applyFilter(accelY, sensor.accelY(), alpha);
+  applyFilter(accelZ, sensor.accelZ(), alpha);
+}
+void GyroPID::applyFilter(float &smoothedValue, float newValue, float alpha) {
+    smoothedValue = (1 - alpha) * smoothedValue + alpha * newValue;
 }
 
-float GyroPID::getGyroX() {
-  return gyroX;
-}
+float GyroPID::getGyroX() { return gyroX; }
+float GyroPID::getGyroY() { return gyroY; }
+float GyroPID::getGyroZ() { return gyroZ; }
 
-float GyroPID::getGyroY() {
-  return gyroY;
-}
-
-float GyroPID::getGyroZ() {
-  return gyroZ;
-}
+float GyroPID::getAccelX() { return accelX; }
+float GyroPID::getAccelY() { return accelY; }
+float GyroPID::getAccelZ() { return accelZ; }

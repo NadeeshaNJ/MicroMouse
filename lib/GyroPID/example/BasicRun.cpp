@@ -17,5 +17,12 @@ void loop() {
   Serial.print(" Z: ");
   Serial.println(gyro.getGyroZ());
 
-  delay(500);
+  Serial.print("Accel X: ");
+  Serial.print(gyro.getAccelX());
+  Serial.print(" Y: ");
+  Serial.print(gyro.getAccelY());
+  Serial.print(" Z: ");
+  Serial.println(gyro.getAccelZ());
+
+  delay(100);
 }

@@ -7,16 +7,26 @@
 
 class GyroPID {
  private:
-    MPU9250_asukiaaa sensor;
-    float gyroX, gyroY, gyroZ;
-    //int sdaPin, sclPin;
+   MPU9250_asukiaaa sensor;
+   uint8_t sensorId;
+
+   float gyroX, gyroY, gyroZ;
+   float accelX, accelY, accelZ;
+   void applyFilter(float &smoothedValue, float newValue, float alpha);
+   const float alpha = 0.2; // smoothing factor for EMA
+
  public:
-    GyroPID(int sda = 21, int scl = 22);
-    void begin();
-    void update();
-    float getGyroX();
-    float getGyroY();
-    float getGyroZ();
+   GyroPID();
+   void begin();
+   void update();
+
+   float getGyroX();
+   float getGyroY();
+   float getGyroZ();
+
+   float getAccelX();
+   float getAccelY();
+   float getAccelZ();
 
 };
 
