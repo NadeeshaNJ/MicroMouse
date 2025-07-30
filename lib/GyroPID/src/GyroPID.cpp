@@ -38,6 +38,12 @@ void GyroPID::update() {
   applyFilter(accelY, sensor.accelY(), alpha);
   applyFilter(accelZ, sensor.accelZ(), alpha);
 }
+// void GyroPID::resetYaw() {
+//     yaw = 0.0f; // Actually reset the yaw to zero
+//     // This can be done by setting a static variable or a member variable to zero
+//     // For simplicity, we will just print a message here
+//     Serial.println("Yaw reset to zero");
+// }
 void GyroPID::applyFilter(float &smoothedValue, float newValue, float alpha) {
     smoothedValue = (1 - alpha) * smoothedValue + alpha * newValue;
 }
@@ -69,4 +75,26 @@ float GyroPID::getYaw() {
     if (yaw > 180.0f) yaw += 360.0f;
 
     return yaw;
+}
+int GyroPID::calculateAnglePID() {
+    imuYaw = getYaw();
+    float angleError = targetYaw - imuYaw; // Assuming targetYaw is in degrees
+    long currentTime = micros();
+    float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;
+    if (deltaTime <= 0.000001) deltaTime = 0.000001;
+
+    // Calculate derivative
+    float derivative = (angleError - previousError) / deltaTime;
+
+    // Calculate integral
+    integralError += angleError * deltaTime;
+    integralError = constrain(integralError, -300, 300);  // Clamp integral
+
+    // Calculate PID output
+    float anglePID = Kp * angleError + Ki * integralError + Kd * derivative;
+
+    previousError = angleError;
+    previousTime = currentTime;
+
+    return anglePID;
 }

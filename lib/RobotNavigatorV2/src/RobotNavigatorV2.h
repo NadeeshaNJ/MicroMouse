@@ -20,13 +20,21 @@ private:
     float integralWallError;
     float directionL, directionR;
     float speedL, speedR;
-    long previousTime;
-    float previousError;
-    std::vector<int> sensorDistances;
+    long previousSensorTime;
+    float previousSensorError;
     float wallKp = 0.1; // Proportional gain for wall following
     float wallKi = 0.0; // Integral gain for wall following
     float wallKd = 0.05; // Derivative gain for wall following
 
+
+    std::vector<int> sensorDistances;
+    float imuYaw;
+    float targetYaw; //in degrees
+    float angleKp = 0.1; // Proportional gain for angle PID
+    float angleKi = 0.0; // Integral gain for angle PID
+    float angleKd = 0.05; // Derivative gain for angle PID
+
+    
     int leftMotorSpeed;
     int rightMotorSpeed;
 
@@ -42,6 +50,7 @@ public:
     void resetEncoders();         // Initialize starting move
     int calculateWallPID(std::vector<int> sensorDistances);
     void getEncoderPID();
+    void getAnglePID();           // Get angle PID from GyroPID
     void setTargets(long targetLeft, long targetRight); // Set targets for both motors
     void go(int& facingDirection, int direction); // Move in a given global direction
     void moveForward();  // Move forward in the current direction
@@ -49,7 +58,7 @@ public:
     void turnLeft();
     void turnRight();
     void turnAround();
-
+    
     void updatePosition(int& row, int& col, int& facingDirection, int direction);
 
     bool isIdle(); // checks if both motors are done
