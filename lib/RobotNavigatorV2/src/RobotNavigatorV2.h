@@ -28,6 +28,7 @@ private:
 
 
     std::vector<int> sensorDistances;
+
     float imuYaw;
     float targetYaw; //in degrees
     float angleKp = 0.1; // Proportional gain for angle PID
@@ -46,7 +47,10 @@ private:
 
 public:
     RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right);
-
+    
+    bool cellDone = true; // Flag to check if the cell is done processing
+    bool moving = false; // Flag to check if the robot is currently moving
+    
     void resetEncoders();         // Initialize starting move
     int calculateWallPID(std::vector<int> sensorDistances);
     void getEncoderPID();
@@ -58,10 +62,6 @@ public:
     void turnLeft();
     void turnRight();
     void turnAround();
-    
-    void updatePosition(int& row, int& col, int& facingDirection, int direction);
-
-    bool isIdle(); // checks if both motors are done
 };
 
 #endif

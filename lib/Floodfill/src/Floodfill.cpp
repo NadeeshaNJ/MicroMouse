@@ -23,6 +23,13 @@ void Floodfill::setWall(int row, int col, int direction) { //direction: 0 = nort
 }
 void Floodfill::detectWalls(vector<int> sensorDistances, int row, int col, int direction){
     if(row < 0 || row >= 16 || col < 0 || col >= 16) return; // out of bounds
+    if(sensorDistances[2] > 0 && sensorDistances[2] < wall_threshhold) { // North Wall
+        setWall(row, col, direction);
+        Serial.print("Wall detected at ");
+        Serial.print(direction);
+        Serial.print(" with distance: ");
+        Serial.println(sensorDistances[2]);
+    }
     if(sensorDistances[0] > 0 && sensorDistances[0] < wall_threshhold) {
         setWall(row, col, (direction + 3) % 4);
         Serial.print("Wall detected at ");
@@ -31,15 +38,13 @@ void Floodfill::detectWalls(vector<int> sensorDistances, int row, int col, int d
         Serial.println(sensorDistances[0]);
     }
     //if(sensorDistances[1] < wall_threshhold) setWall(row, col, direction);
-    if(sensorDistances[3] > 0 && sensorDistances[3] < wall_threshhold) {
-        setWall(row, col, direction);
+    if(sensorDistances[4] > 0 && sensorDistances[4] < wall_threshhold) {
+        setWall(row, col, (direction + 1) % 4);
         Serial.print("Wall detected at ");
         Serial.print((direction + 1) % 4);
         Serial.print(" with distance: ");
-        Serial.println(sensorDistances[3]);
+        Serial.println(sensorDistances[4]);
     }
-
-    
 }
 
 void Floodfill::updateWall(int row, int col, bool front, bool left, bool right, int direction){ //direction: 0 = north, 1 = east, 2 = south, 3 = west

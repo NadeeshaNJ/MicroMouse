@@ -4,7 +4,16 @@ RobotNavigatorV2::RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right) {
     leftMotor = left;
     rightMotor = right;
 }
-
+void RobotNavigatorV2::go(int& facingDirection, int direction) {
+    
+    if (direction == -1) return;
+    int diff = (facingDirection - direction + 4) % 4;
+    
+    if (diff == 1) turnLeft();
+    else if (diff == 2) turnAround();
+    else if (diff == 3) turnRight();
+    moveForward();
+}
 void RobotNavigatorV2::resetEncoders() {
     leftMotor->resetEncoder();
     rightMotor->resetEncoder();
@@ -44,46 +53,58 @@ int RobotNavigatorV2::calculateWallPID(std::vector<int> sensorDistances) {
 }
 
 void RobotNavigatorV2::moveForward() {
-    Serial.println("Moving Forward");
+    if (!moving) {
+        Serial.println("Moving Forward");
+        resetEncoders();
+        setTargets(180,180); //180 mm
+        moving = true;
+        cellDone = false;
+    }
     
-    resetEncoders();
-
-    setTargets(180,180); //180 mm
-
+    getEncoderPID();
     speedL = constrain((leftEncoderPID - 5*calculateWallPID(sensorDistances)),-255,255);
     speedR = constrain((rightEncoderPID + 5*calculateWallPID(sensorDistances)),-255,255);
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+    if(leftMotor->checkDone() && rightMotor->checkDone()) {
+        cellDone = true;
+        moving = false; // ready for next move
+    }
 }
 void RobotNavigatorV2::turnLeft() {
-    Serial.println("Turning Left");
-    resetEncoders();
-    imu->setTargetYaw(imu->getYaw() + 90); // Adjust target yaw for left turn
-    int baseAngleSpeed = 0;
-    speedL = constrain((baseAngleSpeed - imu->calculateAnglePID()),-255,255);
-    speedR = constrain((baseAngleSpeed + imu->calculateAnglePID()),-255,255);
+    if(!moving) {
+        Serial.println("Turning Left");
+        resetEncoders();
+        imu->setTargetYaw(imu->getYaw() + 90); // Adjust target yaw for left turn
+        moving = true;
+        cellDone = false;
+    }
+
+    speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
+    speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+    if(leftMotor->checkDone() && rightMotor->checkDone()) {
+        cellDone = true;
+        moving = false; // ready for next move
+    }
 }
 void RobotNavigatorV2::turnRight() {
-    Serial.println("Turning Right");
-    resetEncoders();
-    imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for right turn
-    int baseAngleSpeed = 0;
-    speedL = constrain((baseAngleSpeed - imu->calculateAnglePID()),-255,255);
-    speedR = constrain((baseAngleSpeed + imu->calculateAnglePID()),-255,255);
+    if(!moving) {
+        Serial.println("Turning Right");
+        resetEncoders();
+        imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for right turn
+        moving = true;
+        cellDone = false;
+    }
+
+    speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
+    speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+    if(leftMotor->checkDone() && rightMotor->checkDone()) {
+        cellDone = true;
+        moving = false; // ready for next move
+    }
 }
-void RobotNavigatorV2::go(int& facingDirection, int direction) {
-    if (direction == -1) return;
-    int diff = (facingDirection - direction + 4) % 4;
-    
-    if (diff == 1) turnLeft();
-    else if (diff == 2) turnAround();
-    else if (diff == 3) turnRight();    
 
-    moveForward();
-
-    updatePosition(row, col, facingDirection, direction);
-}
