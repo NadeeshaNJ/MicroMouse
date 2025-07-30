@@ -107,4 +107,21 @@ void RobotNavigatorV2::turnRight() {
         moving = false; // ready for next move
     }
 }
+void RobotNavigatorV2::turnAround() {
+    if(!moving) {
+        Serial.println("Turning Around");
+        resetEncoders();
+        imu->setTargetYaw(imu->getYaw() + 180); // Adjust target yaw for 180 turn
+        moving = true;
+        cellDone = false;
+    }
 
+    speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
+    speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
+    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+    if(leftMotor->checkDone() && rightMotor->checkDone()) {
+        cellDone = true;
+        moving = false; // ready for next move
+    }
+}

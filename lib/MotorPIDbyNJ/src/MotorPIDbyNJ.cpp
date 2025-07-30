@@ -31,7 +31,6 @@ void MotorPIDbyNJ::updateEncoder() {
 long MotorPIDbyNJ::getEncoderValue() const {
     return encoderValue / metricConverter;
 }
-
 void MotorPIDbyNJ::attachEncoderInterrupt(void (*ISR)()) {
   pinMode(encoderPin1, INPUT_PULLUP);
   pinMode(encoderPin2, INPUT_PULLUP);

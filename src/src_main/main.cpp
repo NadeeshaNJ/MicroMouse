@@ -25,6 +25,9 @@ int facingDirection = 0;
 
 int nextMove = 0; // 0 = North, 1 = East, 2 = South, 3 = West
 
+int lastMove = -1;
+bool justFinishedMove = false;
+
 void setup() {
   Serial.begin(115200);
   Wire.begin();
@@ -38,11 +41,27 @@ void setup() {
 
   leftMotor.setPID(0.68, 0.0, 0.04, 50);
   rightMotor.setPID(0.68, 0.0, 0.04, 50);
-  Motors.cellDone = true; // Initialize cellDone to true to start the robot moving
 }
 
 void loop() {
   vector<int> sensorDistances = sensorGroup.readAll(); 
+
+  if (!Motors.cellDone && justFinishedMove) {
+    // Update position and facing direction based on lastMove
+    if (lastMove != -1) {
+      // Update facingDirection
+      facingDirection = lastMove;
+
+      // Update row and col based on new facingDirection
+      switch (lastMove) {
+        case 0: row--; break; // North
+        case 1: col++; break; // East
+        case 2: row++; break; // South
+        case 3: col--; break; // West
+      }
+    }
+    justFinishedMove = false;
+  }
 
   if(Motors.cellDone) {
     solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
@@ -50,5 +69,7 @@ void loop() {
     nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will also be updated from here
 
     Motors.go(facingDirection, nextMove);
+    lastMove = nextMove;
+    justFinishedMove = true;
   }
 }

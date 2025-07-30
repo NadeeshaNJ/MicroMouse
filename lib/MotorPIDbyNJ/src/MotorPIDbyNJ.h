@@ -33,7 +33,7 @@ public:
     //control methods
     int calculateEncoderPID();
     void updateEncoder();    
-    long getEncoderValue() const { return encoderValue; }
+    long getEncoderValue() const;
     void resetEncoder(){encoderValue = 0;}
     void setDirection(int dir) { direction = dir; }
     void setSpeed(int speed){this->speed = speed;}; // Set PWM speed for the motor
