@@ -50,7 +50,7 @@ public:
     
     bool cellDone = true; // Flag to check if the cell is done processing
     bool moving = false; // Flag to check if the robot is currently moving
-        
+    
     void resetEncoders();         // Initialize starting move
     int calculateWallPID(std::vector<int> sensorDistances);
     void getEncoderPID();

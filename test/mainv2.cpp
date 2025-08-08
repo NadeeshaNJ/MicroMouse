@@ -43,14 +43,17 @@ void setup() {
 
 void loop() {
     vector<int> sensorDistances = sensorGroup.readAll(); 
-
-    if (Motors.cellDone) {
+    
+    if (Motors.cellDone) { // EVEN THE VARIABLE IS CALLED 'cellDone', IT SHOULD BE JUST 'done' IN THIS CASE
     // Update position and facing direction based on lastMove
         delay(500); // JUST to check if the code works, remove after that
-        if (lastMove != -1) {
-
+        lastMove = nextMove;
+        if (lastMove != facingDirection) {
+            // if lastMove != facingDirection then motors only have done the turn, so no need to update the locaton of the robot
             facingDirection = lastMove;
-            // Update row and col based on new facingDirection
+            
+        } 
+        else { // Update row and col based on new facingDirection
             switch (lastMove) {
                 case 0: row--; break; // North
                 case 1: col++; break; // East
@@ -61,9 +64,8 @@ void loop() {
         solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
         solveMaze.floodfill();
         nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will be updated from here
-        lastMove = nextMove;
+        
     }
     
     Motors.go(facingDirection, nextMove);
-    // REMOVE cellDone=true in turnLeft and turnRight functions in RobotNavigatorV2
 }
