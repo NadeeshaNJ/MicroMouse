@@ -28,6 +28,7 @@ public:
     void floodfill();
     bool hasWall(int row, int col, int dir);
     int getNextMove(int row, int col); //next row column will also be automatically update from this function
+    bool atGoal(int row, int col); //check if robot came to the goal
 };
 //both detectWall and updateWall do the same thing but with different parameters
 #endif

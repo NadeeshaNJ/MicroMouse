@@ -3,6 +3,9 @@
 #include <utility>
 using namespace std;
 
+bool Floodfill::atGoal(int row, int col) {
+    return (row == 7 || row == 8) && (col == 7 || col == 8);
+}
 void Floodfill::setWall(int row, int col, int direction) { //direction: 0 = north, 1 = east, 2 = south, 3 = west
     if(direction == 0) {
         maze.vertical_walls[row][col].first = 1; // North wall
