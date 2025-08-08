@@ -22,9 +22,7 @@ GyroPID imu;
 int row = 15;
 int col = 0;
 int facingDirection = 0;
-
 int nextMove = 0; // 0 = North, 1 = East, 2 = South, 3 = West
-
 int lastMove = -1;
 bool justFinishedMove = false;
 
@@ -44,32 +42,28 @@ void setup() {
 }
 
 void loop() {
-  vector<int> sensorDistances = sensorGroup.readAll(); 
+    vector<int> sensorDistances = sensorGroup.readAll(); 
 
-  if (!Motors.cellDone && justFinishedMove) {
+    if (Motors.cellDone) {
     // Update position and facing direction based on lastMove
-    if (lastMove != -1) {
-      // Update facingDirection
-      facingDirection = lastMove;
+        delay(500); // JUST to check if the code works, remove after that
+        if (lastMove != -1) {
 
-      // Update row and col based on new facingDirection
-      switch (lastMove) {
-        case 0: row--; break; // North
-        case 1: col++; break; // East
-        case 2: row++; break; // South
-        case 3: col--; break; // West
-      }
+            facingDirection = lastMove;
+            // Update row and col based on new facingDirection
+            switch (lastMove) {
+                case 0: row--; break; // North
+                case 1: col++; break; // East
+                case 2: row++; break; // South
+                case 3: col--; break; // West
+            }
+        }
+        solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
+        solveMaze.floodfill();
+        nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will be updated from here
+        lastMove = nextMove;
     }
-    justFinishedMove = false;
-  }
-
-  if(Motors.cellDone) {
-    solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
-    solveMaze.floodfill();
-    nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will also be updated from here
-
+    
     Motors.go(facingDirection, nextMove);
-    lastMove = nextMove;
-    justFinishedMove = true;
-  }
+    // REMOVE cellDone=true in turnLeft and turnRight functions in RobotNavigatorV2
 }

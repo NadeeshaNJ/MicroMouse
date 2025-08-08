@@ -85,7 +85,7 @@ void RobotNavigatorV2::turnLeft() {
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
     if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true;
+        //cellDone = true; // Remove this for mainv2.cpp and avaialble for main.cpp
         moving = false; // ready for next move
     }
 }
@@ -103,7 +103,7 @@ void RobotNavigatorV2::turnRight() {
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
     if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true;
+        //cellDone = true; // Remove this for mainv2.cpp
         moving = false; // ready for next move
     }
 }
@@ -121,7 +121,7 @@ void RobotNavigatorV2::turnAround() {
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
     if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true;
+        //cellDone = true; // Remove this for mainv2.cpp
         moving = false; // ready for next move
     }
 }
