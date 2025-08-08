@@ -19,7 +19,7 @@ void updateRightEncoder() { rightMotor.updateEncoder(); }
 
 GyroPID imu;
 
-int row = 15;
+int row = 0;
 int col = 0;
 int facingDirection = 0;
 
