@@ -12,7 +12,7 @@ void RobotNavigatorV2::go(int& facingDirection, int direction) {
     if (diff == 1) turnLeft();
     else if (diff == 2) turnAround();
     else if (diff == 3) turnRight();
-    moveForward();
+    else moveForward();
 }
 void RobotNavigatorV2::resetEncoders() {
     leftMotor->resetEncoder();
@@ -56,7 +56,7 @@ void RobotNavigatorV2::moveForward() {
     if (!moving) {
         Serial.println("Moving Forward");
         resetEncoders();
-        setTargets(180,180); //180 mm
+        setTargets(192,192); //192 mm
         moving = true;
         cellDone = false;
     }
@@ -85,7 +85,7 @@ void RobotNavigatorV2::turnLeft() {
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
     if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        //cellDone = true; // Remove this for mainv2.cpp and avaialble for main.cpp
+        cellDone = true; 
         moving = false; // ready for next move
     }
 }
@@ -103,7 +103,7 @@ void RobotNavigatorV2::turnRight() {
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
     if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        //cellDone = true; // Remove this for mainv2.cpp
+        cellDone = true; 
         moving = false; // ready for next move
     }
 }
@@ -121,7 +121,7 @@ void RobotNavigatorV2::turnAround() {
     if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
     if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
     if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        //cellDone = true; // Remove this for mainv2.cpp
+        cellDone = true; 
         moving = false; // ready for next move
     }
 }
