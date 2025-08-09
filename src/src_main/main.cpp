@@ -10,7 +10,7 @@ int sensorCorrections[] = {0, 6, 16, 43, 26};  // mm to subtract from each senso
 VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
 Floodfill solveMaze;
-
+int dist = 0;
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
 MotorPIDbyNJ rightMotor(14, 27, 19, 23);
 RobotNavigatorV2 Motors(&leftMotor, &rightMotor);
