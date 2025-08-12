@@ -5,12 +5,14 @@
 #include <MotorPIDbyNJ.h>
 #include <vector>
 #include <GyroPID.h>
+#include <VL6180XManagerV2.h>
 
 class RobotNavigatorV2 {
 private:
     MotorPIDbyNJ* leftMotor;
     MotorPIDbyNJ* rightMotor;
     GyroPID* imu;
+    VL6180XManagerV2* sensorGroup;
 
     int row;
     int col;
@@ -51,7 +53,7 @@ public:
     bool moving = false; // Flag to check if the robot is currently moving
     
     void resetEncoders();         // Initialize starting move
-    int calculateWallPID(std::vector<int> sensorDistances);
+    int calculateWallPID();
     void getEncoderPID();
     void getAnglePID();           // Get angle PID from GyroPID
     void setTargets(long targetLeft, long targetRight); // Set targets for both motors

@@ -5,16 +5,7 @@ RobotNavigatorV2::RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right, Gyro
     rightMotor = right;
     imu = gyro;
 }
-void RobotNavigatorV2::go(int& facingDirection, int direction) {
-    
-    if (direction == -1) return;
-    int diff = (facingDirection - direction + 4) % 4;
-    
-    if (diff == 1) turnLeft();
-    else if (diff == 2) turnAround();
-    else if (diff == 3) turnRight();
-    else moveForward();
-}
+
 void RobotNavigatorV2::resetEncoders() {
     leftMotor->resetEncoder();
     rightMotor->resetEncoder();
@@ -30,14 +21,8 @@ void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
     leftMotor->setTarget(targetLeft);
     rightMotor->setTarget(targetRight);
 }
-void RobotNavigatorV2::updateSensorDistances(std::vector<int> distances) {
-    sensorDistances = distances;
-}
-int RobotNavigatorV2::calculateWallPID(std::vector<int> sensorDistances) {
-    // Check if we have enough sensor data
-    if (sensorDistances.size() < 5) {
-        return 0; // Return 0 if insufficient sensor data
-    }
+
+int RobotNavigatorV2::calculateWallPID() {
     
     float wallError = (sensorDistances[0] - sensorDistances[4]);
     
@@ -69,15 +54,16 @@ void RobotNavigatorV2::moveForward() {
         moving = true;
         cellDone = false;
     }
-    
-    getEncoderPID();
-    speedL = constrain((leftEncoderPID - 5*calculateWallPID(sensorDistances)),-255,255);
-    speedR = constrain((rightEncoderPID + 5*calculateWallPID(sensorDistances)),-255,255);
-    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-    if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true;
-        moving = false; // ready for next move
+    while(moving){
+        getEncoderPID();
+        speedL = constrain((leftEncoderPID - 5*calculateWallPID()),-255,255);
+        speedR = constrain((rightEncoderPID + 5*calculateWallPID()),-255,255);
+        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            cellDone = true;
+            moving = false; // ready for next move
+        }
     }
 }
 void RobotNavigatorV2::turnLeft() {
