@@ -1,6 +1,6 @@
 #include <VL6180XManagerV2.h>
 
-int xshutPins[] = {17, 16, 4};
+int xshutPins[] = {32, 17, 16, 15, 4};
 VL6180XManagerV2 sensorGroup(xshutPins, 3);
 
 void setup() {

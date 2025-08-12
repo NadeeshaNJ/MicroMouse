@@ -1,5 +1,6 @@
 #include <RobotNavigatorV2.h>
 
+
 RobotNavigatorV2::RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right) {
     leftMotor = left;
     rightMotor = right;
@@ -60,15 +61,17 @@ void RobotNavigatorV2::moveForward() {
         moving = true;
         cellDone = false;
     }
-    
-    getEncoderPID();
-    speedL = constrain((leftEncoderPID - 5*calculateWallPID(sensorDistances)),-255,255);
-    speedR = constrain((rightEncoderPID + 5*calculateWallPID(sensorDistances)),-255,255);
-    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-    if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true;
-        moving = false; // ready for next move
+    while(moving) {
+        
+        getEncoderPID();
+        speedL = constrain((leftEncoderPID - 5*calculateWallPID(sensorDistances)),-255,255);
+        speedR = constrain((rightEncoderPID + 5*calculateWallPID(sensorDistances)),-255,255);
+        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            cellDone = true;
+            moving = false; // ready for next move
+        }
     }
 }
 void RobotNavigatorV2::turnLeft() {

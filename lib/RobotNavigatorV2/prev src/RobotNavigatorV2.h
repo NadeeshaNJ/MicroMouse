@@ -53,9 +53,9 @@ private:
 public:
     RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right);
     // Add constructor declaration for initialization
-    // RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right, 
-    //                  std::array<int, 5> xshutPins = {32, 17, 16, 15, 4}, 
-    //                  std::array<int, 5> sensorCorrections = {0, 6, 16, 43, 26});
+    RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right, 
+                     std::array<int, 5> xshutPins = {32, 17, 16, 15, 4}, 
+                     std::array<int, 5> sensorCorrections = {0, 6, 16, 43, 26});
     
     bool cellDone = true; // Flag to check if the cell is done processing
     bool moving = false; // Flag to check if the robot is currently moving

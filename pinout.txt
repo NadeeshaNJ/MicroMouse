@@ -5,11 +5,11 @@ left encoder - (18,5) //forward+,backward-
 right encoder - (19,23) //forward+,backward-
 
 XSHUT pins: //sensors are marked in black with relevent position
-left TOF 32 //accurate
-left front TOF 17 //+6mm error
-middle TOF 16
+left        TOF 32 //accurate
+left front  TOF 17 //+6mm error
+middle      TOF 16
 right front TOF 15 //+42mm error
-right TOF 4 //+27mm error
+right       TOF 4 //+27mm error
 
 encoderValue:4000 = 15.5cm (ratio: 258en/cm)
 

@@ -1,8 +1,9 @@
 #include <RobotNavigatorV2.h>
 
-RobotNavigatorV2::RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right) {
+RobotNavigatorV2::RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right, GyroPID* gyro) {
     leftMotor = left;
     rightMotor = right;
+    imu = gyro;
 }
 void RobotNavigatorV2::go(int& facingDirection, int direction) {
     
@@ -29,7 +30,15 @@ void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
     leftMotor->setTarget(targetLeft);
     rightMotor->setTarget(targetRight);
 }
+void RobotNavigatorV2::updateSensorDistances(std::vector<int> distances) {
+    sensorDistances = distances;
+}
 int RobotNavigatorV2::calculateWallPID(std::vector<int> sensorDistances) {
+    // Check if we have enough sensor data
+    if (sensorDistances.size() < 5) {
+        return 0; // Return 0 if insufficient sensor data
+    }
+    
     float wallError = (sensorDistances[0] - sensorDistances[4]);
     
     long currentTime = micros();

@@ -5,19 +5,18 @@
 #include <RobotNavigatorV2.h>
 #include <GyroPID.h>
 
-int xshutPins[] = {32, 17, 15, 4};
-int sensorCorrections[] = {0, 6, 16, 43, 26};  // mm to subtract from each sensor
+int xshutPins[] = {32, 17, 16, 15, 4};
+int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
 VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
 Floodfill solveMaze;
 int dist = 0;
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
 MotorPIDbyNJ rightMotor(14, 27, 19, 23);
-RobotNavigatorV2 Motors(&leftMotor, &rightMotor);
+GyroPID imu;
+RobotNavigatorV2 Motors(&leftMotor, &rightMotor, &imu);
 void updateLeftEncoder() { leftMotor.updateEncoder(); }
 void updateRightEncoder() { rightMotor.updateEncoder(); }
-
-GyroPID imu;
 
 int row = 0;
 int col = 0;
@@ -45,6 +44,7 @@ void setup() {
 
 void loop() {
   vector<int> sensorDistances = sensorGroup.readAll(); 
+  Motors.updateSensorDistances(sensorDistances); // Update sensor data in Motors
 
   if (!Motors.cellDone && justFinishedMove) {
     // Update position and facing direction based on lastMove

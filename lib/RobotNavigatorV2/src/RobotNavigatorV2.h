@@ -44,9 +44,8 @@ private:
 
     int encoderPID;
 
-
 public:
-    RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right);
+    RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right, GyroPID* gyro);   
     
     bool cellDone = true; // Flag to check if the cell is done processing
     bool moving = false; // Flag to check if the robot is currently moving
@@ -56,6 +55,7 @@ public:
     void getEncoderPID();
     void getAnglePID();           // Get angle PID from GyroPID
     void setTargets(long targetLeft, long targetRight); // Set targets for both motors
+    void updateSensorDistances(std::vector<int> distances); // Update sensor distances
     void go(int& facingDirection, int direction); // Move in a given global direction
     void moveForward();  // Move forward in the current direction
     void moveBackward(); // Move backward in the current direction (not implemented)
