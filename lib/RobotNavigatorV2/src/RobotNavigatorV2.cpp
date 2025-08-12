@@ -24,8 +24,8 @@ void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
 
 int RobotNavigatorV2::calculateWallPID() {
     sensorDistances = sensorGroup->readAll();
-    float wallError = (sensorDistances[0] - sensorDistances[4]);
-    
+    float wallError = (constrain(sensorDistances[0], 0, 100) - constrain(sensorDistances[4], 0, 100));
+
     long currentTime = micros();
     float deltaTime = ((float)(currentTime - previousSensorTime)) / 1.0e6;    
     if (deltaTime <= 0.000001) deltaTime = 0.000001;     
