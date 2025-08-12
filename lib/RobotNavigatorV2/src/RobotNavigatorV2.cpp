@@ -14,9 +14,6 @@ void RobotNavigatorV2::getEncoderPID() {
     leftEncoderPID = leftMotor->calculateEncoderPID();
     rightEncoderPID = rightMotor->calculateEncoderPID();
 }
-void RobotNavigatorV2::getAnglePID() {
-    imuYaw = imu->getYaw();
-}
 void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
     leftMotor->setTarget(targetLeft);
     rightMotor->setTarget(targetRight);
@@ -74,14 +71,15 @@ void RobotNavigatorV2::turnLeft() {
         moving = true;
         cellDone = false;
     }
-
-    speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
-    speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
-    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-    if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true; 
-        moving = false; // ready for next move
+    while(moving){
+        speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
+        speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
+        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            cellDone = true; 
+            moving = false; // ready for next move
+        }
     }
 }
 void RobotNavigatorV2::turnRight() {
@@ -92,14 +90,15 @@ void RobotNavigatorV2::turnRight() {
         moving = true;
         cellDone = false;
     }
-
-    speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
-    speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
-    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-    if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true; 
-        moving = false; // ready for next move
+    while(moving){
+        speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
+        speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
+        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            cellDone = true; 
+            moving = false; // ready for next move
+        }
     }
 }
 void RobotNavigatorV2::turnAround() {
@@ -110,13 +109,14 @@ void RobotNavigatorV2::turnAround() {
         moving = true;
         cellDone = false;
     }
-
-    speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
-    speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
-    if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-    if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-    if(leftMotor->checkDone() && rightMotor->checkDone()) {
-        cellDone = true; 
-        moving = false; // ready for next move
+    while(moving){
+        speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
+        speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
+        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            cellDone = true; 
+            moving = false; // ready for next move
+        }
     }
 }

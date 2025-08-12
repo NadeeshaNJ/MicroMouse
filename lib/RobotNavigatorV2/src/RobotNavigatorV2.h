@@ -55,9 +55,7 @@ public:
     void resetEncoders();         // Initialize starting move
     int calculateWallPID();
     void getEncoderPID();
-    void getAnglePID();           // Get angle PID from GyroPID
     void setTargets(long targetLeft, long targetRight); // Set targets for both motors
-    void updateSensorDistances(std::vector<int> distances); // Update sensor distances
     void go(int& facingDirection, int direction); // Move in a given global direction
     void moveForward();  // Move forward in the current direction
     void moveBackward(); // Move backward in the current direction (not implemented)
