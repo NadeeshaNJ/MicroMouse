@@ -23,7 +23,7 @@ void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
 }
 
 int RobotNavigatorV2::calculateWallPID() {
-    
+    sensorDistances = sensorGroup->readAll();
     float wallError = (sensorDistances[0] - sensorDistances[4]);
     
     long currentTime = micros();
