@@ -44,7 +44,6 @@ void setup() {
 
 void loop() {
   vector<int> sensorDistances = sensorGroup.readAll(); 
-  Motors.updateSensorDistances(sensorDistances); // Update sensor data in Motors
 
   if (!Motors.cellDone && justFinishedMove) {
     // Update position and facing direction based on lastMove
