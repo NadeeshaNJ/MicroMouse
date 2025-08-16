@@ -41,8 +41,9 @@ void setup() {
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
   rightMotor.attachEncoderInterrupt(updateRightEncoder);
 
-  leftMotor.setPID(0.8, 0.0, 0.04, 2);
-  rightMotor.setPID(0.8, 0.0, 0.04, 2);
+  leftMotor.setPID(0.8, 0.0, 0.04, 8);
+  rightMotor.setPID(0.8, 0.0, 0.04, 8);
+
 }
 
 bool testMoveDone = false;

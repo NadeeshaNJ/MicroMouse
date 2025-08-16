@@ -57,9 +57,11 @@ void RobotNavigatorV2::moveForward() {
         cellDone = false;
     }
     while(moving){
+        int currentWallPID = calculateWallPID();
+        Serial.println(currentWallPID);
         getEncoderPID();
-        speedL = constrain((leftEncoderPID - calculateWallPID()),-255,255);
-        speedR = constrain((rightEncoderPID + calculateWallPID()),-255,255);
+        speedL = constrain((leftEncoderPID - currentWallPID/5),-255,255);
+        speedR = constrain((rightEncoderPID + currentWallPID/5),-255,255);
         if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
         if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
         if(leftMotor->checkDone() && rightMotor->checkDone()) {
