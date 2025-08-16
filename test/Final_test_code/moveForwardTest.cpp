@@ -51,5 +51,4 @@ void loop() {
     Motors.moveForward();
     testMoveDone = true;
   }
-  // ...existing code or idle...
 }

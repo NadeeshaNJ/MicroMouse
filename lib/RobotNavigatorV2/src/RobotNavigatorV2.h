@@ -24,9 +24,9 @@ private:
     float speedL, speedR;
     long previousSensorTime;
     float previousSensorError;
-    float wallKp = 0.1; // Proportional gain for wall following
+    float wallKp = 0.7; // Proportional gain for wall following
     float wallKi = 0.0; // Integral gain for wall following
-    float wallKd = 0.05; // Derivative gain for wall following
+    float wallKd = 0.04; // Derivative gain for wall following
 
 
     std::vector<int> sensorDistances;
@@ -48,6 +48,7 @@ private:
 
 public:
     RobotNavigatorV2(MotorPIDbyNJ* left, MotorPIDbyNJ* right, GyroPID* gyro);   
+    void setSensorGroup(VL6180XManagerV2* group) { sensorGroup = group; }
     
     bool cellDone = true; // Flag to check if the cell is done processing
     bool moving = false; // Flag to check if the robot is currently moving

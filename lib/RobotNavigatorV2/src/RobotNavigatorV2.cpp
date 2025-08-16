@@ -21,6 +21,10 @@ void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
 
 int RobotNavigatorV2::calculateWallPID() {
     sensorDistances = sensorGroup->readAll();
+    if (sensorDistances.size() < 5) {
+        Serial.println("Error: Not enough sensor data");
+        return 0; // or handle error
+    }
     float wallError = (constrain(sensorDistances[0], 0, 100) - constrain(sensorDistances[4], 0, 100));
 
     long currentTime = micros();
@@ -47,14 +51,15 @@ void RobotNavigatorV2::moveForward() {
     if (!moving) {
         Serial.println("Moving Forward");
         resetEncoders();
-        setTargets(192,192); //192 mm
+        leftMotor->setTarget(192);
+        rightMotor->setTarget(192);
         moving = true;
         cellDone = false;
     }
     while(moving){
         getEncoderPID();
-        speedL = constrain((leftEncoderPID - 5*calculateWallPID()),-255,255);
-        speedR = constrain((rightEncoderPID + 5*calculateWallPID()),-255,255);
+        speedL = constrain((leftEncoderPID - calculateWallPID()),-255,255);
+        speedR = constrain((rightEncoderPID + calculateWallPID()),-255,255);
         if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
         if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
         if(leftMotor->checkDone() && rightMotor->checkDone()) {

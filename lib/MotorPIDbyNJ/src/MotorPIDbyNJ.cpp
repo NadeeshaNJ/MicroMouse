@@ -29,6 +29,8 @@ void MotorPIDbyNJ::updateEncoder() {
     lastEncoded = encoded;
 }
 long MotorPIDbyNJ::getEncoderValue() const {
+    Serial.print("Encoder Value: ");
+    Serial.println(encoderValue / metricConverter);
     return encoderValue / metricConverter;
 }
 void MotorPIDbyNJ::attachEncoderInterrupt(void (*ISR)()) {
