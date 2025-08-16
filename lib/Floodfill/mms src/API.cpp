@@ -18,52 +18,39 @@ int API::mazeHeight() {
 }
 
 bool API::wallFront() {
-    std::cout << "wallFront" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return response == "true";
+    sensorDistances = sensorGroup->readAll();
+    if(sensorDistances[2] > 0 && sensorDistances[2] < wall_threshhold) { // North Wall
+        return true;
+    }
+    return false;
 }
 
 bool API::wallRight() {
-    std::cout << "wallRight" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return response == "true";
+    sensorDistances = sensorGroup->readAll();
+    if(sensorDistances[4] > 0 && sensorDistances[4] < wall_threshhold) {
+        return true;
+    }
+    return false;
 }
 
 bool API::wallLeft() {
-    std::cout << "wallLeft" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return response == "true";
+    sensorDistances = sensorGroup->readAll();
+    if(sensorDistances[0] > 0 && sensorDistances[0] < wall_threshhold) {
+        return true;
+    }
+    return false;
 }
 
-void API::moveForward(int distance) {
-    std::cout << "moveForward ";
-    // Don't print distance argument unless explicitly specified, for
-    // backwards compatibility with older versions of the simulator
-    if (distance != 1) {
-        std::cout << distance;
-    }
-    std::cout << std::endl;
-    std::string response;
-    std::cin >> response;
-    if (response != "ack") {
-        std::cerr << response << std::endl;
-        throw;
-    }
+void API::moveForward() {
+    robotNavigator->moveForward();
 }
 
 void API::turnRight() {
-    std::cout << "turnRight" << std::endl;
-    std::string ack;
-    std::cin >> ack;
+    robotNavigator->turnRight();
 }
 
 void API::turnLeft() {
-    std::cout << "turnLeft" << std::endl;
-    std::string ack;
-    std::cin >> ack;
+    robotNavigator->turnLeft();
 }
 
 void API::setWall(int x, int y, char direction) {

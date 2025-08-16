@@ -1,9 +1,18 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <VL6180XManagerV2.h>
+#include <RobotNavigatorV2.h>
+using namespace std;
 
 class API {
-
+private:
+    VL6180XManagerV2* sensorGroup;
+    RobotNavigatorV2* robotNavigator;
+    vector<int> sensorDistances;
+    int wall_threshhold;
+    int row, col;
 public:
 
     static int mazeWidth();
@@ -13,7 +22,7 @@ public:
     static bool wallRight();
     static bool wallLeft();
 
-    static void moveForward(int distance = 1);
+    static void moveForward();
     static void turnRight();
     static void turnLeft();
 

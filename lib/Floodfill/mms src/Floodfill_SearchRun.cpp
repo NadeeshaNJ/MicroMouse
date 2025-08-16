@@ -19,17 +19,17 @@ const int SIZE = 16;
 
 int curRow = 0, curCol = 0, curDir = 0;  // 0=north,1=east,2=south,3=west
 
-float getStat(const std::string& statName) {
-    std::cout << "getStat " << statName << std::endl;
-    std::string response;
-    std::cin >> response;
-    try {
-        return std::stof(response); // handles both int and float
-    } catch (...) {
-        std::cerr << "Failed to parse stat: " << statName << std::endl;
-        return -1;
-    }
-}
+// float getStat(const std::string& statName) {
+//     std::cout << "getStat " << statName << std::endl;
+//     std::string response;
+//     std::cin >> response;
+//     try {
+//         return std::stof(response); // handles both int and float
+//     } catch (...) {
+//         std::cerr << "Failed to parse stat: " << statName << std::endl;
+//         return -1;
+//     }
+// }
 
 bool atGoal(int row, int col) {
     return (row == 7 || row == 8) && (col == 7 || col == 8);
@@ -200,17 +200,17 @@ Action solver() {
     int bestDir = floodfill.getNextMove(curRow, curCol);
 
     Action action = rotateTo(bestDir);
-    std::cerr << "Moved to: (" << curRow << ", " << curCol << ")" << std::endl;
+    //std::cerr << "Moved to: (" << curRow << ", " << curCol << ")" << std::endl;
     //API::setColor(curRow, curCol, 'g');
-    std::cerr << "Action decided: " << action << std::endl;
+    //std::cerr << "Action decided: " << action << std::endl;
     if (action == IDLE) {
-        std::cerr << "No valid move found, staying idle." << std::endl;
+       log("No valid move found, staying idle.");
     }
     return action;
 }
 
 void log(const string& text) {
-    cerr << text << endl;
+    Serial.println(text);
 }
 int main(int argc, char* argv[]) {
     log("Running...");
