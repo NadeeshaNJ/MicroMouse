@@ -61,6 +61,7 @@ float GyroPID::getYaw() {
     // Yaw calculation using atan2 of accelY and accelX (for demonstration)
     // You may want to use gyro integration or sensor fusion for better results
     // Integrate gyroZ over time to estimate yaw (assuming update() is called at a fixed interval)
+    update();
     static float yaw = 0.0f;
     static unsigned long lastUpdate = 0;
     unsigned long now = millis();
@@ -99,5 +100,6 @@ int GyroPID::calculateAnglePID() {
     return anglePID;
 }
 bool GyroPID::checkDone(){
+    Serial.println("Current Yaw: " + String(getYaw()));
     return abs(targetYaw - getYaw()) < toleranceYaw;
 }

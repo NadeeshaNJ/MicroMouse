@@ -49,6 +49,13 @@ void setup() {
 bool testMoveDone = false;
 void loop() {
   if (!testMoveDone) {
+    // Motors.moveForward();
+    // Motors.moveForward();
+    // Motors.turnRight();
+    // Motors.moveForward();
+    // Motors.turnRight();
+    // Motors.moveForward();
+
     Motors.turnLeft();
     testMoveDone = true;
     Serial.println("Exited");

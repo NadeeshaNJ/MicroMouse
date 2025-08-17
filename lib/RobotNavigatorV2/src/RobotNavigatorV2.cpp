@@ -90,10 +90,12 @@ void RobotNavigatorV2::turnLeft() {
         moving = true;
         cellDone = false;
     }
-    while(moving){
+    while(moving){        
+        
         int currentAnglePID = imu->calculateAnglePID();
+        Serial.println("Current Angle PID: " + String(currentAnglePID));
 
-        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+        if(imu->checkDone() && imu->checkDone()) {
             Serial.println("Turn Done");
             cellDone = true;
             moving = false; 
@@ -110,18 +112,25 @@ void RobotNavigatorV2::turnRight() {
     if(!moving) {
         Serial.println("Turning Right");
         resetEncoders();
-        imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for right turn
+        imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for left turn
         moving = true;
         cellDone = false;
     }
-    while(moving){
-        speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
-        speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
-        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-        if(leftMotor->checkDone() && rightMotor->checkDone()) {
-            cellDone = true; 
-            moving = false; // ready for next move
+    while(moving){        
+        
+        int currentAnglePID = imu->calculateAnglePID();
+        Serial.println("Current Angle PID: " + String(currentAnglePID));
+
+        if(imu->checkDone() && imu->checkDone()) {
+            Serial.println("Turn Done");
+            cellDone = true;
+            moving = false; 
+        }
+        else{
+            speedL = constrain((0 - currentAnglePID),-255,255);
+            speedR = constrain((0 + currentAnglePID),-255,255);
+            leftMotor->runMotor(speedL);
+            rightMotor->runMotor(speedR);
         }
     }
 }
@@ -129,18 +138,25 @@ void RobotNavigatorV2::turnAround() {
     if(!moving) {
         Serial.println("Turning Around");
         resetEncoders();
-        imu->setTargetYaw(imu->getYaw() + 180); // Adjust target yaw for 180 turn
+        imu->setTargetYaw(imu->getYaw() - 180); // Adjust target yaw for left turn
         moving = true;
         cellDone = false;
     }
-    while(moving){
-        speedL = constrain((0 - imu->calculateAnglePID()),-255,255);
-        speedR = constrain((0 + imu->calculateAnglePID()),-255,255);
-        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
-        if(leftMotor->checkDone() && rightMotor->checkDone()) {
-            cellDone = true; 
-            moving = false; // ready for next move
+    while(moving){        
+        
+        int currentAnglePID = imu->calculateAnglePID();
+        Serial.println("Current Angle PID: " + String(currentAnglePID));
+
+        if(imu->checkDone() && imu->checkDone()) {
+            Serial.println("Turn Done");
+            cellDone = true;
+            moving = false; 
+        }
+        else{
+            speedL = constrain((0 - currentAnglePID),-255,255);
+            speedR = constrain((0 + currentAnglePID),-255,255);
+            leftMotor->runMotor(speedL);
+            rightMotor->runMotor(speedR);
         }
     }
 }
