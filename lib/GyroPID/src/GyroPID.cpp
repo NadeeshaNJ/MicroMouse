@@ -98,3 +98,6 @@ int GyroPID::calculateAnglePID() {
 
     return anglePID;
 }
+bool GyroPID::checkDone(){
+    return abs(targetYaw - getYaw()) < toleranceYaw;
+}

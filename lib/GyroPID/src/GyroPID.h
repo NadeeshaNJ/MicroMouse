@@ -27,6 +27,8 @@ class GyroPID {
     float Ki = 0.0; // Integral gain for angle PID
     float Kd = 0.05; // Derivative gain for angle PID
 
+    float toleranceYaw = 5.0; // Tolerance for angle PID
+
 
  public:
    GyroPID();
@@ -43,7 +45,9 @@ class GyroPID {
    float getAccelZ();
 
    float getYaw(); // Returns yaw angle based on accelerometer data
+   void setTargetYaw(float target) { targetYaw = target; }
    int calculateAnglePID();
+   bool checkDone();
 
 };
 

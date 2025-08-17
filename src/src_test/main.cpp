@@ -49,7 +49,7 @@ void setup() {
 bool testMoveDone = false;
 void loop() {
   if (!testMoveDone) {
-    Motors.moveForward();
+    Motors.turnLeft();
     testMoveDone = true;
     Serial.println("Exited");
   }
