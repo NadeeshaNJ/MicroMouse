@@ -44,7 +44,7 @@ int RobotNavigatorV2::calculateWallPID() {
     previousSensorError = wallError;
     previousSensorTime = currentTime;
 
-    return wallPID;
+    return sensorDistances[0]-sensorDistances[4];
 }
 
 void RobotNavigatorV2::moveForward() {
@@ -57,17 +57,26 @@ void RobotNavigatorV2::moveForward() {
         cellDone = false;
     }
     while(moving){
-        int currentWallPID = calculateWallPID();
+        int currentWallPID = calculateWallPID(); //THIS IS ONLY GIVING THE ERROR NOT THE PID
         Serial.println(currentWallPID);
         getEncoderPID();
-        speedL = constrain((leftEncoderPID - currentWallPID/5),-255,255);
-        speedR = constrain((rightEncoderPID + currentWallPID/5),-255,255);
-        if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
-        if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
         if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            Serial.println("Move Done");
             cellDone = true;
             moving = false; // ready for next move
         }
+        else{
+            speedL = constrain((leftEncoderPID - currentWallPID/5),-255,255);
+            speedR = constrain((rightEncoderPID + currentWallPID/5),-255,255);
+            leftMotor->runMotor(speedL);
+            rightMotor->runMotor(speedR);
+        }
+        //speedL = constrain((leftEncoderPID - currentWallPID/5),-255,255);
+        //speedR = constrain((rightEncoderPID + currentWallPID/5),-255,255);
+        //if(!leftMotor->checkDone()) leftMotor->runMotor(speedL);
+        //if(!rightMotor->checkDone()) rightMotor->runMotor(speedR);
+        
+        
     }
 }
 void RobotNavigatorV2::turnLeft() {
