@@ -12,6 +12,7 @@
 
 using namespace std;
 Floodfill floodfill;
+static API api;
 
 enum Action { FORWARD, LEFT, RIGHT, IDLE, AROUND};
 
@@ -31,11 +32,9 @@ float getStat(const std::string& statName) {
         return -1;
     }
 }
-
 bool atGoal(int row, int col) {
     return (row == 7 || row == 8) && (col == 7 || col == 8);
 }
-
 void Floodfill::setWall(int row, int col, int direction) {
     if(direction == 0) {
         maze.vertical_walls[row][col].first = 1; // North wall
@@ -54,18 +53,19 @@ void Floodfill::setWall(int row, int col, int direction) {
         if(col - 1 >= 0) maze.horizontal_walls[row][col - 1].second = 1; // East wall of the cell to the left
     }
     char cdir = "nesw"[direction];
-    API::setWall(col, row, cdir);
+     
+    api.setWall(col, row, cdir);
 }
 void Floodfill::detectWalls(vector<int> sensorDistances, int row, int col, int direction){
     if(row < 0 || row >= 16 || col < 0 || col >= 16) return; // out of bounds
-    if(API::wallFront()) { // North Wall
+    if(api.wallFront()) { // North Wall
         setWall(row, col, direction);
         // Serial.print("Wall detected at ");
         // Serial.print(direction);
         // Serial.print(" with distance: ");
         // Serial.println(sensorDistances[2]);
     }
-    if(API::wallLeft()) {
+    if(api.wallLeft()) {
         setWall(row, col, (direction + 3) % 4);
         // Serial.print("Wall detected at ");
         // Serial.print((direction + 3) % 4);
@@ -73,7 +73,7 @@ void Floodfill::detectWalls(vector<int> sensorDistances, int row, int col, int d
         // Serial.println(sensorDistances[0]);
     }
     //if(sensorDistances[1] < wall_threshhold) setWall(row, col, direction);
-    if(API::wallRight()) {
+    if(api.wallRight()) {
         setWall(row, col, (direction + 1) % 4);
         // Serial.print("Wall detected at ");
         // Serial.print((direction + 1) % 4);
@@ -396,14 +396,14 @@ int main(int argc, char* argv[]) {
             std::cerr << "Final Score                  : " << 2000 - getStat("score") << std::endl;
             std::cerr << "Highest Possible score is 2000 " << std::endl;
 
-            API::turnRight();
-            API::turnRight();
+            api.turnRight();
+            api.turnRight();
             curDir = (curDir + 2) % 4;
 
             // Highlight explored shortest path from start to center using known walls only
             //floodfill.final_floodfill();
             int row = 0, col = 0;
-            API::setColor(col, row, 'C');  // Highlight starting point
+            api.setColor(col, row, 'C');  // Highlight starting point
 
             while (!atGoal(row, col)) {
                 int currentDist = floodfill.maze.manhattan_distances[row][col];
@@ -435,8 +435,8 @@ int main(int argc, char* argv[]) {
 
                 row = nextRow;
                 col = nextCol;
-                API::setColor(col, row, 'C');  // Color path step
-            }        
+                api.setColor(col, row, 'C');  // Color path step
+            }
             break;
         }
         path_blocked:
@@ -448,7 +448,7 @@ int main(int argc, char* argv[]) {
             // Highlight explored shortest path from start to center using known walls only
             floodfill.final_floodfill();
             int row = 0, col = 0;
-            API::setColor(col, row, 'C');  // Highlight starting point
+            api.setColor(col, row, 'C');  // Highlight starting point
             while (!atGoal(row, col)) {
                 int currentDist = floodfill.maze.manhattan_distances[row][col];
                 int nextRow = row, nextCol = col;
@@ -471,7 +471,7 @@ int main(int argc, char* argv[]) {
 
                 row = nextRow;
                 col = nextCol;
-                API::setColor(col, row, 'C');  // Color path step
+                api.setColor(col, row, 'C');  // Color path step
             }
             break;
         }
@@ -479,23 +479,23 @@ int main(int argc, char* argv[]) {
         Action action = solver();
         
         if (action == FORWARD) {
-            API::moveForward();            
-            API::setColor(curCol, curRow, 'c');
+            api.moveForward();
+            api.setColor(curCol, curRow, 'c');
             floodfill.maze.visited[curRow][curCol] = true;
-            API::setText(curCol, curRow, to_string(floodfill.maze.manhattan_distances[curRow][curCol]));
+            api.setText(curCol, curRow, to_string(floodfill.maze.manhattan_distances[curRow][curCol]));
             moveForwardUpdatePos();
             
             
 
         } else if (action == LEFT) {
-            API::turnLeft();
+            api.turnLeft();
             curDir = (curDir + 3) % 4;
         } else if (action == RIGHT) {
-            API::turnRight();
+            api.turnRight();
             curDir = (curDir + 1) % 4;
         } else if (action == AROUND) {
-            API::turnRight();
-            API::turnRight();
+            api.turnRight();
+            api.turnRight();
             curDir = (curDir + 2) % 4;
         }
         

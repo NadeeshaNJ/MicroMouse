@@ -18,7 +18,7 @@ int API::mazeHeight() {
 }
 
 bool API::wallFront() {
-    sensorDistances = sensorGroup->readAll();
+    auto sensorDistances = sensorGroup->readAll();
     if(sensorDistances[2] > 0 && sensorDistances[2] < wall_threshhold) { // North Wall
         return true;
     }
@@ -26,7 +26,7 @@ bool API::wallFront() {
 }
 
 bool API::wallRight() {
-    sensorDistances = sensorGroup->readAll();
+    auto sensorDistances = sensorGroup->readAll();
     if(sensorDistances[4] > 0 && sensorDistances[4] < wall_threshhold) {
         return true;
     }
@@ -34,7 +34,7 @@ bool API::wallRight() {
 }
 
 bool API::wallLeft() {
-    sensorDistances = sensorGroup->readAll();
+    auto sensorDistances = sensorGroup->readAll();
     if(sensorDistances[0] > 0 && sensorDistances[0] < wall_threshhold) {
         return true;
     }

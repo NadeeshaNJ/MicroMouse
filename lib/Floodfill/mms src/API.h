@@ -10,7 +10,6 @@ class API {
 private:
     VL6180XManagerV2* sensorGroup;
     RobotNavigatorV2* robotNavigator;
-    vector<int> sensorDistances;
     int wall_threshhold;
     int row, col;
 public:
@@ -18,20 +17,20 @@ public:
     static int mazeWidth();
     static int mazeHeight();
 
-    static bool wallFront();
-    static bool wallRight();
-    static bool wallLeft();
+    bool wallFront();
+    bool wallRight();
+    bool wallLeft();
 
-    static void moveForward();
-    static void turnRight();
-    static void turnLeft();
+    void moveForward();
+    void turnRight();
+    void turnLeft();
 
-    static void setWall(int x, int y, char direction);
-    static void clearWall(int x, int y, char direction);
+    void setWall(int x, int y, char direction);
+    void clearWall(int x, int y, char direction);
 
-    static void setColor(int x, int y, char color);
-    static void clearColor(int x, int y);
-    static void clearAllColor();
+    void setColor(int x, int y, char color);
+    void clearColor(int x, int y);
+    void clearAllColor();
 
     static void setText(int x, int y, const std::string& text);
     static void clearText(int x, int y);

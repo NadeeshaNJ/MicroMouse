@@ -1,0 +1,3 @@
+*Time expensive*
+PID calculation is super expensive
+assigning millis() and calculating the time difference is expensive
