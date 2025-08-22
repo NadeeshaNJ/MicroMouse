@@ -23,7 +23,7 @@ class GyroPID {
 
     float imuYaw;
     float targetYaw; //in degrees
-    float Kp = 3; // Proportional gain for angle PID
+    float Kp = 2; // Proportional gain for angle PID
     float Ki = 0.1; // Integral gain for angle PID
     float Kd = 0.5; // Derivative gain for angle PID
 
