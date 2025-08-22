@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <VL6180XManagerV2.h>
-#include <Floodfill.h>
+//#include <Floodfill.h>
 #include <MotorPIDbyNJ.h>
 #include <RobotNavigatorV2.h>
 #include <GyroPID.h>
@@ -9,7 +9,7 @@ int xshutPins[] = {32, 17, 16, 15, 4};
 int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
 VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
-Floodfill solveMaze;
+//Floodfill solveMaze;
 int dist = 0;
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
 MotorPIDbyNJ rightMotor(14, 27, 19, 23);
@@ -36,25 +36,25 @@ void setup() {
 
   Motors.setSensorGroup(&sensorGroup);
   
-  solveMaze.setThreshhold(80);
+  //solveMaze.setThreshhold(80);
 
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
   rightMotor.attachEncoderInterrupt(updateRightEncoder);
 
-  leftMotor.setPID(0.9, 0.0, 0.1, 8);
-  rightMotor.setPID(0.9, 0.0, 0.1, 8);
+  leftMotor.setPID(3, 0.1, 0.4, 8);
+  rightMotor.setPID(3, 0.1, 0.4, 8);
 
 }
 
 bool testMoveDone = false;
 void loop() {
   if (!testMoveDone) {
-    // Motors.moveForward();
-    // Motors.moveForward();
-    // Motors.turnRight();
-    // Motors.moveForward();
-    // Motors.turnRight();
-    // Motors.moveForward();
+    Motors.moveForward();
+    Motors.moveForward();
+    Motors.turnRight();
+    Motors.moveForward();
+    Motors.turnRight();
+    Motors.moveForward();
 
     Motors.turnLeft();
     testMoveDone = true;

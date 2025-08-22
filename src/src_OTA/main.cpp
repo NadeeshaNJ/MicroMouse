@@ -56,8 +56,8 @@ void setup() {
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
   rightMotor.attachEncoderInterrupt(updateRightEncoder);
 
-  leftMotor.setPID(0.9, 0.0, 0.1, 2);
-  rightMotor.setPID(0.9, 0.0, 0.1, 2);
+  leftMotor.setPID(0.9, 0.0, 0.2, 2);
+  rightMotor.setPID(0.9, 0.0, 0.2, 2);
 
 }
 

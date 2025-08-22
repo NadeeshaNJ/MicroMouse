@@ -4,6 +4,8 @@
 #include <array>
 #include <utility>
 #include <vector>
+#include <VL6180XManagerV2.h>
+#include <RobotNavigatorV2.h>
 using namespace std;
 
 struct grid {
@@ -16,9 +18,11 @@ struct grid {
     };
 
 class Floodfill {
-private:   
+private:
+    VL6180XManagerV2* sensorGroup;
+    RobotNavigatorV2* robotNavigator;
     vector<int> sensorDistances;
-    int wall_threshhold;
+    int wall_threshhold = 80;
     int direction;
     int row, col;
     bool front, left, right;
@@ -34,6 +38,14 @@ public:
     bool hasWall(int row, int col, int dir);
     int getNextMove(int row, int col); //next row column will also be automatically update from this function
     int reverse_getNextMove(int row, int col); //next row column will also be automatically update from this function
+
+    bool wallFront();
+    bool wallRight();
+    bool wallLeft();    
+
+    void moveForward();
+    void turnRight();
+    void turnLeft();
 
     void setGoal(int row, int col);
     bool isGoal(int row, int col);
