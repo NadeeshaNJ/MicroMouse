@@ -10,14 +10,18 @@ void RobotNavigatorV2::resetEncoders() {
     leftMotor->resetEncoder();
     rightMotor->resetEncoder();
 }
-void RobotNavigatorV2::getEncoderPID() {
-    leftEncoderPID = leftMotor->calculateEncoderPID();
-    rightEncoderPID = rightMotor->calculateEncoderPID();
-}
 void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
     leftMotor->setTarget(targetLeft);
     rightMotor->setTarget(targetRight);
 }
+
+void RobotNavigatorV2::getEncoderPID() {
+    leftEncoderPID = leftMotor->calculateEncoderPID();
+    Serial.println("Left Encoder PID: " + String(leftEncoderPID));
+    rightEncoderPID = rightMotor->calculateEncoderPID();
+    Serial.println("Right Encoder PID: " + String(rightEncoderPID));
+}
+
 
 int RobotNavigatorV2::calculateWallPID() {
     sensorDistances = sensorGroup->readAll();
@@ -44,7 +48,8 @@ int RobotNavigatorV2::calculateWallPID() {
     // previousSensorError = wallError;
     // previousSensorTime = currentTime;
     // return WallPID;
-    return sensorDistances[0]-sensorDistances[4];
+    int difference = constrain(sensorDistances[0]-sensorDistances[4], -100, 100);
+    return difference;
 }
 
 void RobotNavigatorV2::moveForward() {
@@ -86,7 +91,7 @@ void RobotNavigatorV2::turnLeft() {
     if(!moving) {
         Serial.println("Turning Left");
         resetEncoders();
-        imu->setTargetYaw(imu->getYaw() + 90); // Adjust target yaw for left turn
+        imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for left turn
         moving = true;
         cellDone = false;
     }
@@ -112,7 +117,7 @@ void RobotNavigatorV2::turnRight() {
     if(!moving) {
         Serial.println("Turning Right");
         resetEncoders();
-        imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for left turn
+        imu->setTargetYaw(imu->getYaw() + 90); // Adjust target yaw for left turn
         moving = true;
         cellDone = false;
     }
