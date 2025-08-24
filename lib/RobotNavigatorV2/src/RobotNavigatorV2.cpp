@@ -91,7 +91,12 @@ void RobotNavigatorV2::turnLeft() {
     if(!moving) {
         Serial.println("Turning Left");
         resetEncoders();
-        imu->setTargetYaw(imu->getYaw() - 90); // Adjust target yaw for left turn
+        float yaw = imu->getYaw();
+        while (abs(yaw) < 0.1) { // or another threshold for "invalid" yaw
+            delay(10);
+            yaw = imu->getYaw();
+        }
+        imu->setTargetYaw(yaw - 90); // Adjust target yaw for left turn
         moving = true;
         cellDone = false;
     }
@@ -99,6 +104,7 @@ void RobotNavigatorV2::turnLeft() {
         
         int currentAnglePID = imu->calculateAnglePID();
         Serial.println("Current Angle PID: " + String(currentAnglePID));
+        Serial.println("Target Yaw: " + String(imu->targetYaw) );
 
         if(imu->checkDone() && imu->checkDone()) {
             Serial.println("Turn Done");
@@ -117,7 +123,12 @@ void RobotNavigatorV2::turnRight() {
     if(!moving) {
         Serial.println("Turning Right");
         resetEncoders();
-        imu->setTargetYaw(imu->getYaw() + 90); // Adjust target yaw for left turn
+        float yaw = imu->getYaw();
+        while (abs(yaw) < 0.1) { // or another threshold for "invalid" yaw
+            delay(10);
+            yaw = imu->getYaw();
+        }
+        imu->setTargetYaw(yaw + 90); // Adjust target yaw for left turn
         moving = true;
         cellDone = false;
     }
@@ -125,6 +136,7 @@ void RobotNavigatorV2::turnRight() {
         
         int currentAnglePID = imu->calculateAnglePID();
         Serial.println("Current Angle PID: " + String(currentAnglePID));
+        Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
         if(imu->checkDone() && imu->checkDone()) {
             Serial.println("Turn Done");

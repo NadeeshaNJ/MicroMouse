@@ -13,8 +13,8 @@ VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 int dist = 0;
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
 MotorPIDbyNJ rightMotor(14, 27, 19, 23);
-GyroPID imuController;
-RobotNavigatorV2 Motors(&leftMotor, &rightMotor, &imuController);
+GyroPID gyro;
+RobotNavigatorV2 Motors(&leftMotor, &rightMotor, &gyro);
 // Motors.setSensorGroup(&sensorGroup); // moved to setup()
 void updateLeftEncoder() { leftMotor.updateEncoder(); }
 void updateRightEncoder() { rightMotor.updateEncoder(); }
@@ -32,7 +32,7 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
   sensorGroup.begin();
-  imuController.begin();
+  gyro.begin();
 
   Motors.setSensorGroup(&sensorGroup);
   
@@ -49,6 +49,7 @@ void setup() {
 bool testMoveDone = false;
 void loop() {
   if (!testMoveDone) {
+
     Motors.moveForward();
     Motors.moveForward();
     Motors.turnRight();
@@ -173,4 +174,3 @@ void loop() {
 //   }
 //   // ...existing code or idle...
 // }
-
