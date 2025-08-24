@@ -1,88 +1,25 @@
 #include "GyroPID.h"
 
-GyroPID::GyroPID() {
-//   sdaPin = sda;
-//   sclPin = scl;
+GyroPID::GyroPID() : sensor(55, 0x28, &Wire) {}
+
+bool GyroPID::begin(uint8_t address) {
+  if (!sensor.begin()) {
+    return false; // not detected
+  }
+  sensor.setExtCrystalUse(true); // improves heading stability
+  return true;
 }
-
-void GyroPID::begin() {
-    Wire.begin();
-    sensor.setWire(&Wire);
-
-    uint8_t sensorId;
-    int result;
-    result = sensor.readId(&sensorId);
-    if (result == 0) {
-        Serial.println("sensorId: " + String(sensorId));
-    } else {
-        Serial.println("Cannot read sensorId " + String(result));
-    }
-
-    sensor.beginAccel();
-    sensor.beginGyro();
-
-    // Initialize smoothed values to zero
-    gyroX = gyroY = gyroZ = 0;
-    accelX = accelY = accelZ = 0;
-}
-
-void GyroPID::update() {
-  sensor.accelUpdate();
-  sensor.gyroUpdate();
-
-  applyFilter(gyroX, sensor.gyroX(), alpha);
-  applyFilter(gyroY, sensor.gyroY(), alpha);
-  applyFilter(gyroZ, sensor.gyroZ(), alpha);
-
-  applyFilter(accelX, sensor.accelX(), alpha);
-  applyFilter(accelY, sensor.accelY(), alpha);
-  applyFilter(accelZ, sensor.accelZ(), alpha);
-}
-// void GyroPID::resetYaw() {
-//     yaw = 0.0f; // Actually reset the yaw to zero
-//     // This can be done by setting a static variable or a member variable to zero
-//     // For simplicity, we will just print a message here
-//     Serial.println("Yaw reset to zero");
-// }
-void GyroPID::applyFilter(float &smoothedValue, float newValue, float alpha) {
-    smoothedValue = (1 - alpha) * smoothedValue + alpha * newValue;
-}
-
-float GyroPID::getGyroX() { return gyroX; }
-float GyroPID::getGyroY() { return gyroY; }
-float GyroPID::getGyroZ() { return gyroZ; }
-
-float GyroPID::getAccelX() { return accelX; }
-float GyroPID::getAccelY() { return accelY; }
-float GyroPID::getAccelZ() { return accelZ; }
-
-//float GyroPID::getYaw() { return atan2(accelY, accelZ) * 180 / M_PI; }
 float GyroPID::getYaw() {
-    // Yaw calculation using atan2 of accelY and accelX (for demonstration)
-    // You may want to use gyro integration or sensor fusion for better results
-    // Integrate gyroZ over time to estimate yaw (assuming update() is called at a fixed interval)
-    update();
-    static float yaw = 0.0f;
-    static unsigned long lastUpdate = 0;
-    unsigned long now = millis();
-    float dt = (lastUpdate == 0) ? 0 : (now - lastUpdate) / 1000.0f; // seconds
-    lastUpdate = now;
-
-    // GyroZ is in degrees/sec, integrate to get degrees
-    yaw += (sensor.gyroZ() + gyroZ_Correction) * dt;
-
-    // Optionally, keep yaw in [-180, 180] range
-    if (yaw < -180.0f) yaw -= 360.0f;
-    if (yaw > 180.0f) yaw += 360.0f;
-
-    return yaw;
+  sensors_event_t orientationData;
+  sensor.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
+  return orientationData.orientation.x; // yaw (heading)
 }
+
 int GyroPID::calculateAnglePID() {
     imuYaw = getYaw();
     float angleError = targetYaw - imuYaw; // Assuming targetYaw is in degrees
-    long currentTime = micros();
-    float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;
-    if (deltaTime <= 0.000001) deltaTime = 0.000001;
+    long currentTime = millis();
+    float deltaTime = ((float)(currentTime - previousTime)) / 1000.0;
 
     // Calculate derivative
     float derivative = (angleError - previousError) / deltaTime;
@@ -97,9 +34,10 @@ int GyroPID::calculateAnglePID() {
     previousError = angleError;
     previousTime = currentTime;
 
-    return anglePID;
+    return (int)anglePID;
 }
 bool GyroPID::checkDone(){
-    Serial.println("Current Yaw: " + String(getYaw()));
-    return abs(targetYaw - getYaw()) < toleranceYaw;
+    //imuYaw = getYaw(); //removes because getYaw() is called in calculateAnglePID() so this will be efficient
+    Serial.println("Current Yaw: " + String(imuYaw));
+    return abs(targetYaw - imuYaw) < toleranceYaw;
 }

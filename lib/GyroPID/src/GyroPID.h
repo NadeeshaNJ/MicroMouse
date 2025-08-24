@@ -1,53 +1,40 @@
-#ifndef MPUHELPER_H
-#define MPUHELPER_H
+#ifndef GYROPID_H
+#define GYROPID_H
 
 #include <Arduino.h>
 #include <Wire.h>
-#include <MPU9250_asukiaaa.h>
-
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
 class GyroPID {
  private:
-    MPU9250_asukiaaa sensor;
-
-    float gyroX, gyroY, gyroZ;
-    float accelX, accelY, accelZ;
-    void applyFilter(float &smoothedValue, float newValue, float alpha);
-    const float alpha = 1; // smoothing factor for EMA
-
-    float gyroZ_Correction = 0.891;// Correction factor for gyro Z axis
-
+    Adafruit_BNO055 sensor;
+    float lastYaw;
+    ///////////////////////////////////////
     
     float integralError;
     long previousTime;
     float previousError;
 
     float imuYaw;
-    float targetYaw; //in degrees
-    float Kp = 2; // Proportional gain for angle PID
-    float Ki = 0.1; // Integral gain for angle PID
-    float Kd = 0.5; // Derivative gain for angle PID
-
-    float toleranceYaw = 2.0; // Tolerance for angle PID
+    
 
 
  public:
    GyroPID();
-   void begin();
-   void update();
+   bool begin(uint8_t address = 0x28); // default I2C address
+   float getYaw();          // fused yaw from BNO055
+   int calculateAnglePID(); // PID control for yaw
+   bool checkDone();   
    void setTargetYaw(float target) { targetYaw = target; }
 
-   float getGyroX();
-   float getGyroY();
-   float getGyroZ();
+   float targetYaw; //in degrees
+   float Kp = 2; // Proportional gain for angle PID
+   float Ki = 0.1; // Integral gain for angle PID
+   float Kd = 0.5; // Derivative gain for angle PID
 
-   float getAccelX();
-   float getAccelY();
-   float getAccelZ();
-
-   float getYaw(); // Returns yaw angle based on accelerometer data
-
-   int calculateAnglePID();
-   bool checkDone();
+    float toleranceYaw = 2.0; // Tolerance for angle PID
+   /////////////////////////
+   
 
 };
 

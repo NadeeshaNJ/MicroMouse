@@ -1,31 +1,19 @@
-#include <GyroPID.h>
+#include "GyroPID.h"
 
-GyroPID gyro; 
-//What I need is gyro Z axis
+GyroPID gyro;
 
 void setup() {
   Serial.begin(115200);
-  gyro.begin();
+  if (!gyro.begin()) {
+    Serial.println("BNO055 not detected!");
+    while (1);
+  }
+  gyro.targetYaw = 90.0; // example: rotate to 90°
+  delay(100);
 }
 
 void loop() {
-  gyro.update();
+  Serial.print("Yaw: "); Serial.println(gyro.getYaw());
 
-  Serial.print("Gyro X: ");
-  Serial.print(gyro.getGyroX());
-  Serial.print(" Y: ");
-  Serial.print(gyro.getGyroY());
-  Serial.print(" Z: ");
-  Serial.println(gyro.getGyroZ());
-
-  Serial.print("Accel X: ");
-  Serial.print(gyro.getAccelX());
-  Serial.print(" Y: ");
-  Serial.print(gyro.getAccelY());
-  Serial.print(" Z: ");
-  Serial.println(gyro.getAccelZ());
-
-  Serial.print("Yaw: ");
-  Serial.println(gyro.getYaw());
   delay(100);
 }
