@@ -48,7 +48,7 @@ int RobotNavigatorV2::calculateWallPID() {
     // previousSensorError = wallError;
     // previousSensorTime = currentTime;
     // return WallPID;
-    int difference = constrain(sensorDistances[0]-sensorDistances[4], -100, 100);
+    int difference = constrain(sensorDistances[0]-sensorDistances[4], -80, 80);
     return difference;
 }
 
@@ -182,4 +182,54 @@ void RobotNavigatorV2::turnAround() {
             rightMotor->runMotor(speedR);
         }
     }
+}
+int RobotNavigatorV2::centeringPID() {
+    sensorDistances = sensorGroup->readAll();
+    if (sensorDistances.size() < 5) {
+        Serial.println("Error: Not enough sensor data");
+        return 0; // or handle error
+    }
+    //float wallError = (constrain(sensorDistances[0], 0, 100) - constrain(sensorDistances[4], 0, 100));
+    float wallError = sensorDistances[4];
+
+    long currentTime = millis();
+    float deltaTime = ((float)(currentTime - previousSensorTime)) / 1000.0;      
+    
+    // Calculate derivative
+    float derivative = (wallError - previousSensorError) / deltaTime;
+    
+    // Calculate integral
+    integralWallError += wallError * deltaTime;
+    integralWallError = constrain(integralWallError, -300, 300);  // Clamp integral
+
+    // Calculate PID output
+    float wallPID = wallKp * wallError + wallKi * integralWallError + wallKd * derivative;
+
+    previousSensorError = wallError;
+    previousSensorTime = currentTime;
+    return wallPID;
+}
+void RobotNavigatorV2::centerInCell() {
+    // Only center if there is a wall on at least one side
+    sensorDistances = sensorGroup->readAll();
+    //bool leftWall = sensorDistances[0] < 80;   // adjust threshold as needed
+    //bool rightWall = sensorDistances[4] < 80;  // adjust threshold as needed
+    bool frontWall = sensorDistances[2] < 80;  // adjust threshold as needed
+
+    if (!frontWall) return; // No wall to reference
+    if(sensorDistances[2] > 20 && sensorDistances[2] < 40) return;
+
+    Serial.println("Centering in cell...");
+    resetEncoders();
+
+    unsigned long startTime = millis();
+    while (millis() - startTime < 400) { // Center for up to 0.4s, adjust as needed
+        int wallPID = calculateWallPID();
+        int correction = constrain(wallPID, -60, 60); // adjust as needed
+        leftMotor->runMotor(-correction);
+        rightMotor->runMotor(correction);
+    }
+    leftMotor->runMotor(0);
+    rightMotor->runMotor(0);
+    Serial.println("Centered.");
 }

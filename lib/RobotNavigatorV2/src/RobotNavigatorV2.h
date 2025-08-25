@@ -18,15 +18,16 @@ private:
     int col;
     int direction; // 0 = North, 1 = East, 2 = South, 3 = West
     int facingDirection;
-    float integralEncoderError;
+
     float integralWallError;
+
     float directionL, directionR;
     float speedL, speedR;
     long previousSensorTime;
     float previousSensorError;
-    float wallKp = 0.7; // Proportional gain for wall following
-    float wallKi = 0.0; // Integral gain for wall following
-    float wallKd = 0.04; // Derivative gain for wall following
+    float wallKp = 3; // Proportional gain for wall following
+    float wallKi = 0.05; // Integral gain for wall following
+    float wallKd = 0.4; // Derivative gain for wall following
 
 
     std::vector<int> sensorDistances;
@@ -63,6 +64,8 @@ public:
     void turnLeft();
     void turnRight();
     void turnAround();
+    int centeringPID();
+    void centerInCell();
 };
 
 #endif

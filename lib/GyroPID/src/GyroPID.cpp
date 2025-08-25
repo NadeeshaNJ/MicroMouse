@@ -22,15 +22,16 @@ float GyroPID::angleDiff(float target, float current) {
 int GyroPID::calculateAnglePID() {
     imuYaw = getYaw();
     float angleError = angleDiff(targetYaw, imuYaw);
-    long currentTime = millis();
-    float deltaTime = ((float)(currentTime - previousTime)) / 1000.0;
+    long currentTime = micros();
+    float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;
+    if (deltaTime <= 0.000001) deltaTime = 0.000001;   
 
     // Calculate derivative
     float derivative = (angleError - previousError) / deltaTime;
 
     // Calculate integral
     integralError += angleError * deltaTime;
-    integralError = constrain(integralError, -300, 300);  // Clamp integral
+    integralError = constrain(integralError, -1000, 1000);  // Clamp integral
 
     // Calculate PID output
     float anglePID = Kp * angleError + Ki * integralError + Kd * derivative;

@@ -39,6 +39,11 @@ void MotorPIDbyNJ::attachEncoderInterrupt(void (*ISR)()) {
   attachInterrupt(digitalPinToInterrupt(encoderPin1), ISR, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoderPin2), ISR, CHANGE);
 }
+void MotorPIDbyNJ::resetEncoder(){
+    encoderValue = 0;
+    integralEncoderError = 0;
+    previousError = 0;
+}
 
 int MotorPIDbyNJ::calculateEncoderPID() {
     long encoderValue = getEncoderValue();
@@ -53,7 +58,7 @@ int MotorPIDbyNJ::calculateEncoderPID() {
 
     // Calculate integral
     integralEncoderError += error * deltaTime;
-    integralEncoderError = constrain(integralEncoderError, -300, 300);  // Clamp integral
+    integralEncoderError = constrain(integralEncoderError, -1000, 1000);  // Clamp integral
 
     // Calculate PID output
     encoderPID = kp * error + ki * integralEncoderError + kd * derivative;
