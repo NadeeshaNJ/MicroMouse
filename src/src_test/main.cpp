@@ -50,6 +50,8 @@ bool testMoveDone = false;
 void loop() {
   if (!testMoveDone) {
 
+    //Motors.turnLeft();
+
     Motors.moveForward();
     Motors.moveForward();
     Motors.turnRight();

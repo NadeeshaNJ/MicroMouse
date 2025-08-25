@@ -23,13 +23,14 @@ class GyroPID {
    GyroPID();
    bool begin(uint8_t address = 0x28); // default I2C address
    float getYaw();          // fused yaw from BNO055
+   float angleDiff(float target, float current);
    int calculateAnglePID(); // PID control for yaw
-   bool checkDone();   
-   void setTargetYaw(float target) { targetYaw = target; }
+   bool checkDone();
+   void setTargetYaw(float target);
 
    float targetYaw; //in degrees
    float Kp = 2; // Proportional gain for angle PID
-   float Ki = 0.1; // Integral gain for angle PID
+   float Ki = 0.3; // Integral gain for angle PID
    float Kd = 0.5; // Derivative gain for angle PID
 
     float toleranceYaw = 2.0; // Tolerance for angle PID

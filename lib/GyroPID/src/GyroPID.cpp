@@ -14,10 +14,14 @@ float GyroPID::getYaw() {
   sensor.getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
   return orientationData.orientation.x; // yaw (heading)
 }
+float GyroPID::angleDiff(float target, float current) {
+    float diff = fmodf(target - current + 540.0f, 360.0f) - 180.0f;
+    return diff;
+}
 
 int GyroPID::calculateAnglePID() {
     imuYaw = getYaw();
-    float angleError = targetYaw - imuYaw; // Assuming targetYaw is in degrees
+    float angleError = angleDiff(targetYaw, imuYaw);
     long currentTime = millis();
     float deltaTime = ((float)(currentTime - previousTime)) / 1000.0;
 
@@ -40,4 +44,7 @@ bool GyroPID::checkDone(){
     //imuYaw = getYaw(); //removes because getYaw() is called in calculateAnglePID() so this will be efficient
     Serial.println("Current Yaw: " + String(imuYaw));
     return abs(targetYaw - imuYaw) < toleranceYaw;
+}
+void GyroPID::setTargetYaw(float target) {
+    targetYaw = fmodf(target + 360.0f, 360.0f); // always in [0,360)
 }

@@ -68,6 +68,8 @@ void RobotNavigatorV2::moveForward() {
         Serial.println(currentWallPID);
         getEncoderPID();
         if(leftMotor->checkDone() && rightMotor->checkDone()) {
+            leftMotor->runMotor(0);
+            rightMotor->runMotor(0);
             Serial.println("Move Done");
             cellDone = true;
             moving = false; 
@@ -104,16 +106,18 @@ void RobotNavigatorV2::turnLeft() {
         
         int currentAnglePID = imu->calculateAnglePID();
         Serial.println("Current Angle PID: " + String(currentAnglePID));
-        Serial.println("Target Yaw: " + String(imu->targetYaw) );
+        Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
-        if(imu->checkDone() && imu->checkDone()) {
+        if(imu->checkDone()) {
+            leftMotor->runMotor(0);
+            rightMotor->runMotor(0);
             Serial.println("Turn Done");
             cellDone = true;
             moving = false; 
         }
         else{
-            speedL = constrain((0 - currentAnglePID),-255,255);
-            speedR = constrain((0 + currentAnglePID),-255,255);
+            speedL = constrain((0 + currentAnglePID),-255,255);
+            speedR = constrain((0 - currentAnglePID),-255,255);
             leftMotor->runMotor(speedL);
             rightMotor->runMotor(speedR);
         }
@@ -138,14 +142,16 @@ void RobotNavigatorV2::turnRight() {
         Serial.println("Current Angle PID: " + String(currentAnglePID));
         Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
-        if(imu->checkDone() && imu->checkDone()) {
+        if(imu->checkDone()) {            
+            leftMotor->runMotor(0);
+            rightMotor->runMotor(0);
             Serial.println("Turn Done");
             cellDone = true;
             moving = false; 
         }
         else{
-            speedL = constrain((0 - currentAnglePID),-255,255);
-            speedR = constrain((0 + currentAnglePID),-255,255);
+            speedL = constrain((0 + currentAnglePID),-255,255);
+            speedR = constrain((0 - currentAnglePID),-255,255);
             leftMotor->runMotor(speedL);
             rightMotor->runMotor(speedR);
         }
