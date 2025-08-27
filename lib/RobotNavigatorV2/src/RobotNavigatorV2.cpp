@@ -102,8 +102,8 @@ void RobotNavigatorV2::turnLeft() {
         moving = true;
         cellDone = false;
     }
-    while(moving){        
-        
+    while(moving){
+        centerInCell();
         int currentAnglePID = imu->calculateAnglePID();
         Serial.println("Current Angle PID: " + String(currentAnglePID));
         Serial.println("Target Yaw:               " + String(imu->targetYaw) );
@@ -137,7 +137,7 @@ void RobotNavigatorV2::turnRight() {
         cellDone = false;
     }
     while(moving){        
-        
+        centerInCell()
         int currentAnglePID = imu->calculateAnglePID();
         Serial.println("Current Angle PID: " + String(currentAnglePID));
         Serial.println("Target Yaw:               " + String(imu->targetYaw) );
