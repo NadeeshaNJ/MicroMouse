@@ -24,18 +24,6 @@ public:
     void moveForward();
     void turnRight();
     void turnLeft();
-
-    void setWall(int x, int y, char direction);
-    void clearWall(int x, int y, char direction);
-
-    void setColor(int x, int y, char color);
-    void clearColor(int x, int y);
-    void clearAllColor();
-
-    static void setText(int x, int y, const std::string& text);
-    static void clearText(int x, int y);
-    static void clearAllText();
-
     static bool wasReset();
     static void ackReset();
 

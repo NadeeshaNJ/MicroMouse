@@ -28,6 +28,7 @@ private:
     bool front, left, right;
 public:
     grid maze;
+    void runFloodfill();
     void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
     void setWall(int row, int col, int direction);
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    

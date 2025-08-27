@@ -88,7 +88,6 @@ void Floodfill::setWall(int row, int col, int direction) {
     }
     char cdir = "nesw"[direction];
      
-    api.setWall(col, row, cdir);
 }
 void Floodfill::detectWalls(vector<int> sensorDistances,int row, int col, int direction){
     if(row < 0 || row >= 16 || col < 0 || col >= 16) return; // out of bounds
@@ -187,9 +186,7 @@ void Floodfill::floodfill() {
     for (int r = 0; r < 16; ++r) {
         for (int c = 0; c < 16; ++c) {
             int dist = maze.manhattan_distances[r][c];
-            if (dist != 255) {
-                API::setText(c, r, to_string(dist));  // NOTE: col=x, row=y
-            }
+            
         }
     }
 }
@@ -304,9 +301,7 @@ void Floodfill::final_floodfill() {
     for (int r = 0; r < 16; ++r) {
         for (int c = 0; c < 16; ++c) {
             int dist = maze.manhattan_distances[r][c];
-            if (dist != 255) {
-                API::setText(c, r, to_string(dist));  
-            }
+            
         }
     }
 }
@@ -420,9 +415,7 @@ int main(int argc, char* argv[]) {
             //api.setColor(curCol, curRow, 'c');
             floodfill.maze.visited[curRow][curCol] = true;
             //api.setText(curCol, curRow, to_string(floodfill.maze.manhattan_distances[curRow][curCol]));
-            moveForwardUpdatePos();
-            
-            
+            moveForwardUpdatePos();           
 
         } else if (action == LEFT) {
             api.turnLeft();
@@ -459,7 +452,6 @@ int main(int argc, char* argv[]) {
             // Highlight explored shortest path from start to center using known walls only
             //floodfill.final_floodfill();
             int row = 0, col = 0;
-            api.setColor(col, row, 'C');  // Highlight starting point
 
             while (!atGoal(row, col)) {
                 int currentDist = floodfill.maze.manhattan_distances[row][col];
@@ -491,7 +483,6 @@ int main(int argc, char* argv[]) {
 
                 row = nextRow;
                 col = nextCol;
-                api.setColor(col, row, 'C');  // Color path step
             }
             break;
         }
@@ -504,7 +495,6 @@ int main(int argc, char* argv[]) {
             // Highlight explored shortest path from start to center using known walls only
             floodfill.final_floodfill();
             int row = 0, col = 0;
-            api.setColor(col, row, 'C');  // Highlight starting point
             while (!atGoal(row, col)) {
                 int currentDist = floodfill.maze.manhattan_distances[row][col];
                 int nextRow = row, nextCol = col;
@@ -527,7 +517,6 @@ int main(int argc, char* argv[]) {
 
                 row = nextRow;
                 col = nextCol;
-                api.setColor(col, row, 'C');  // Color path step
             }
             break;
         }
@@ -536,4 +525,124 @@ int main(int argc, char* argv[]) {
         
     }
     return 0;
+}
+void Floodfill::runFloodfill() {
+    log("Running...");
+    while (true) {
+        Action action = solver();
+        
+        if (action == FORWARD) {
+            api.moveForward();
+            //api.setColor(curCol, curRow, 'c');
+            maze.visited[curRow][curCol] = true;
+            //api.setText(curCol, curRow, to_string(floodfill.maze.manhattan_distances[curRow][curCol]));
+            moveForwardUpdatePos();           
+
+        } else if (action == LEFT) {
+            api.turnLeft();
+            curDir = (curDir + 3) % 4;
+        } else if (action == RIGHT) {
+            api.turnRight();
+            curDir = (curDir + 1) % 4;
+        } else if (action == AROUND) {
+            api.turnRight();
+            api.turnRight();
+            curDir = (curDir + 2) % 4;
+        }
+
+        if (reachedCenter && curRow == 0 && curCol == 0) {
+            // std::cerr << "Returned to start!\n";
+            // log("Goal reached!");
+            // log("\n==== MMS SIMULATOR STATS ====");
+            // log("Total Distance               : " + to_string(getStat("total-distance")));
+            // log("Total Turns                  : " + to_string(getStat("total-turns")));
+            // log("Best Run Distance            : " + to_string(getStat("best-run-distance")));
+            // log("Best Run Turns               : " + to_string(getStat("best-run-turns")));
+            // log("Current Run Distance         : " + to_string(getStat("current-run-distance")));
+            // log("Current Run Turns            : " + to_string(getStat("current-run-turns")));
+            // log("Total Effective Distance     : " + to_string(getStat("total-effective-distance")));
+            // log("Best Run Effective Distance  : " + to_string(getStat("best-run-effective-distance")));
+            // log("Current Run Effective Dist   : " + to_string(getStat("current-run-effective-distance")));
+            // log("Final Score                  : " + to_string(2000 - getStat("score")));
+            // log("Highest Possible score is 2000 ");
+
+            api.turnRight();
+            api.turnRight();
+            curDir = (curDir + 2) % 4;
+
+            // Highlight explored shortest path from start to center using known walls only
+            //floodfill.final_floodfill();
+            int row = 0, col = 0;
+
+            while (!atGoal(row, col)) {
+                int currentDist = maze.manhattan_distances[row][col];
+                int nextRow = row, nextCol = col;
+
+                for (int dir = 0; dir < 4; ++dir) {
+                    int r = row, c = col;
+
+                    if (dir == 0 && !hasWall(row, col, 0)) r++;
+                    else if (dir == 1 && !hasWall(row, col, 1)) c++;
+                    else if (dir == 2 && !hasWall(row, col, 2)) r--;
+                    else if (dir == 3 && !hasWall(row, col, 3)) c--;
+                    else continue;
+
+                    if (r >= 0 && r < 16 && c >= 0 && c < 16 && maze.visited[r][c] && maze.manhattan_distances[r][c] < currentDist) {
+                        nextRow = r;
+                        nextCol = c;
+                        break;
+                    }
+                    }
+                    // If after checking all directions, we didn't move (still at same cell), path is blocked
+                    if (row == nextRow && col == nextCol) {
+                        log("Path to goal is blocked or incomplete. Re-run the floodfill...");
+                        rerun = true; //rerun the robot through the calculated shorter path
+                        // Try to find a new path if the current one is blocked
+                        reachedCenter = false;
+                        goto path_blocked;
+                }
+
+                row = nextRow;
+                col = nextCol;
+            }
+            break;
+        }
+        path_blocked:
+        if (!reachedCenter && atGoal(curRow, curCol)) {
+            log("Reached center. Reversing goal to return home...");
+            reachedCenter = true;
+        }
+        if(rerun && atGoal(curRow, curCol)) {
+            // Highlight explored shortest path from start to center using known walls only
+            final_floodfill();
+            int row = 0, col = 0;
+            while (!atGoal(row, col)) {
+                int currentDist = maze.manhattan_distances[row][col];
+                int nextRow = row, nextCol = col;
+
+                for (int dir = 0; dir < 4; ++dir) {
+                    int r = row, c = col;
+
+                    if (dir == 0 && !hasWall(row, col, 0)) r++;
+                    else if (dir == 1 && !hasWall(row, col, 1)) c++;
+                    else if (dir == 2 && !hasWall(row, col, 2)) r--;
+                    else if (dir == 3 && !hasWall(row, col, 3)) c--;
+                    else continue;
+
+                    if (r >= 0 && r < 16 && c >= 0 && c < 16 && maze.manhattan_distances[r][c] < currentDist) {
+                        nextRow = r;
+                        nextCol = c;
+                        break;
+                    }
+                }
+
+                row = nextRow;
+                col = nextCol;
+            }
+            break;
+        }
+
+        
+        
+    }
 }

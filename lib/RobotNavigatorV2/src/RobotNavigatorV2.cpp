@@ -223,7 +223,7 @@ void RobotNavigatorV2::centerInCell() {
     resetEncoders();
 
     unsigned long startTime = millis();
-    while (millis() - startTime < 400) { // Center for up to 0.4s, adjust as needed
+    while (millis() - startTime < 600) { // Center for up to 0.6s, adjust as needed
         int wallPID = calculateWallPID();
         int correction = constrain(wallPID, -60, 60); // adjust as needed
         leftMotor->runMotor(-correction);
