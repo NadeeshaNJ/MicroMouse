@@ -10,12 +10,12 @@ int API::mazeWidth() {
     return atoi(response.c_str());
 }
 
-int API::mazeHeight() {
-    std::cout << "mazeHeight" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return atoi(response.c_str());
-}
+// int API::mazeHeight() {
+//     std::cout << "mazeHeight" << std::endl;
+//     std::string response;
+//     std::cin >> response;
+//     return atoi(response.c_str());
+// }
 
 bool API::wallFront() {
     auto sensorDistances = sensorGroup->readAll();
