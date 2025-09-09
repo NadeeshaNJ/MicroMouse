@@ -3,12 +3,12 @@
 #include <cstdlib>
 #include <iostream>
 
-int API::mazeWidth() {
-    std::cout << "mazeWidth" << std::endl;
-    std::string response;
-    std::cin >> response;
-    return atoi(response.c_str());
-}
+// int API::mazeWidth() {
+//     std::cout << "mazeWidth" << std::endl;
+//     std::string response;
+//     std::cin >> response;
+//     return atoi(response.c_str());
+// }
 
 // int API::mazeHeight() {
 //     std::cout << "mazeHeight" << std::endl;
