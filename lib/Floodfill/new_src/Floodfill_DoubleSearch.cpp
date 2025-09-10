@@ -478,6 +478,7 @@ int main(int argc, char* argv[]) {
                         rerun = true; //rerun the robot through the calculated shorter path
                         // Try to find a new path if the current one is blocked
                         reachedCenter = false;
+                        //jump if path is blocked
                         goto path_blocked;
                 }
 
