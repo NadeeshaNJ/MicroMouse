@@ -29,6 +29,7 @@ int lastMove = -1;
 bool justFinishedMove = false;
 
 void setup() {
+
   Serial.begin(115200);
   Wire.begin();
   sensorGroup.begin();
@@ -52,7 +53,6 @@ void loop() {
       // Update facingDirection
       facingDirection = lastMove;
 
-      // Update row and col based on new facingDirection
       switch (lastMove) {
         case 0: row--; break; // North
         case 1: col++; break; // East
