@@ -2,3 +2,6 @@
 where multiple path are available for the robot an it should always try to select the path in front of it 
 
 // direction: 0 = north, 1 = east, 2 = south, 3 = west
+
+//changed this so robot can work with WiFi
+//Reinitializing sensors repeatedly (or calling a method that assumes a different manager) can introduce timing/power issues on the VL6180X parts and produce I2C errors when WiFi/OTA is active.
