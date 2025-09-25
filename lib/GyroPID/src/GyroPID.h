@@ -5,9 +5,12 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
+
+#include <WiFiHandler.h>
 class GyroPID {
  private:
     Adafruit_BNO055 sensor;
+    WiFiHandler OTA;
     float lastYaw;
     ///////////////////////////////////////
     

@@ -43,7 +43,7 @@ int GyroPID::calculateAnglePID() {
 }
 bool GyroPID::checkDone(){
     //imuYaw = getYaw(); //removes because getYaw() is called in calculateAnglePID() so this will be efficient
-    Serial.println("Current Yaw: " + String(imuYaw));
+    OTA.webSerial.println("Current Yaw: " + String(imuYaw));
     return abs(targetYaw - imuYaw) < toleranceYaw;
 }
 void GyroPID::setTargetYaw(float target) {
