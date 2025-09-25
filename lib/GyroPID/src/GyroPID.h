@@ -30,8 +30,8 @@ class GyroPID {
    void setTargetYaw(float target);
 
    float targetYaw; //in degrees
-   float Kp = 0.2; // Proportional gain for angle PID
-   float Ki = 0.01; // Integral gain for angle PID
+   float Kp = 0.8; // Proportional gain for angle PID
+   float Ki = 0; // Integral gain for angle PID
    float Kd = 0.1; // Derivative gain for angle PID
 
     float toleranceYaw = 3.0; // Tolerance for angle PID
