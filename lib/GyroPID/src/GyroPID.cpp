@@ -22,9 +22,9 @@ float GyroPID::angleDiff(float target, float current) {
 int GyroPID::calculateAnglePID() {
     imuYaw = getYaw();
     float angleError = angleDiff(targetYaw, imuYaw);
-    long currentTime = micros();
-    float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;
-    if (deltaTime <= 0.000001) deltaTime = 0.000001;   
+    // long currentTime = micros();
+    // float deltaTime = ((float)(currentTime - previousTime)) / 1.0e6;
+    // if (deltaTime <= 0.000001) deltaTime = 0.000001;     
 
     // Calculate derivative
     float derivative = (angleError - previousError) / deltaTime;
@@ -37,13 +37,13 @@ int GyroPID::calculateAnglePID() {
     float anglePID = Kp * angleError + Ki * integralError + Kd * derivative;
     
     previousError = angleError;
-    previousTime = currentTime;
+    // previousTime = currentTime;
 
     return (int)anglePID;
 }
 bool GyroPID::checkDone(){
     //imuYaw = getYaw(); //removes because getYaw() is called in calculateAnglePID() so this will be efficient
-    OTA.webSerial.println("Current Yaw: " + String(imuYaw));
+    Serial.println("Current Yaw: " + String(imuYaw));
     return abs(targetYaw - imuYaw) < toleranceYaw;
 }
 void GyroPID::setTargetYaw(float target) {

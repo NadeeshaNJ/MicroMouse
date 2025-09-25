@@ -6,11 +6,9 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 
-#include <WiFiHandler.h>
 class GyroPID {
  private:
     Adafruit_BNO055 sensor;
-    WiFiHandler OTA;
     float lastYaw;
     ///////////////////////////////////////
     
@@ -20,6 +18,7 @@ class GyroPID {
 
     float imuYaw;   
 
+    float deltaTime = 0.14; // assuming a fixed loop time of 14ms
 
  public:
    GyroPID();
@@ -31,11 +30,11 @@ class GyroPID {
    void setTargetYaw(float target);
 
    float targetYaw; //in degrees
-   float Kp = 2; // Proportional gain for angle PID
-   float Ki = 0.2; // Integral gain for angle PID
-   float Kd = 1; // Derivative gain for angle PID
+   float Kp = 0.2; // Proportional gain for angle PID
+   float Ki = 0.01; // Integral gain for angle PID
+   float Kd = 0.1; // Derivative gain for angle PID
 
-    float toleranceYaw = 2.0; // Tolerance for angle PID
+    float toleranceYaw = 3.0; // Tolerance for angle PID
    /////////////////////////
    
 
