@@ -57,14 +57,15 @@ void loop() {
 
     //Motors.turnLeft();
 
-    Motors.moveForward();
-    Motors.moveForward();
+    //Motors.moveForward();
+    //Motors.moveForward();
     Motors.turnRight();
     Motors.moveForward();
     Motors.turnRight();
     Motors.moveForward();
-
-    Motors.turnLeft();
+    while(1){}
+    Motors.turnRight();
+    
     testMoveDone = true;
     Serial.println("Exited");
   }

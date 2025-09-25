@@ -35,7 +35,7 @@ int GyroPID::calculateAnglePID() {
 
     // Calculate PID output
     float anglePID = Kp * angleError + Ki * integralError + Kd * derivative;
-
+    
     previousError = angleError;
     previousTime = currentTime;
 

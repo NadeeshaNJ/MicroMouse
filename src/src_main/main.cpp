@@ -1,74 +1,25 @@
 #include <Arduino.h>
-#include <VL6180XManagerV2.h>
-#include <Floodfill.h>
-#include <MotorPIDbyNJ.h>
-#include <RobotNavigatorV2.h>
-#include <GyroPID.h>
+#include <WiFiHandler.h>
 
-int xshutPins[] = {32, 17, 16, 15, 4};
-int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
-VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
-
-Floodfill solveMaze;
-int dist = 0;
-MotorPIDbyNJ leftMotor(25, 26, 18, 5);
-MotorPIDbyNJ rightMotor(14, 27, 19, 23);
-GyroPID imu;
-RobotNavigatorV2 Motors(&leftMotor, &rightMotor, &imu);
-void updateLeftEncoder() { leftMotor.updateEncoder(); }
-void updateRightEncoder() { rightMotor.updateEncoder(); }
-
-int row = 0;
-int col = 0;
-int facingDirection = 0;
-
-int nextMove = 0; // 0 = North, 1 = East, 2 = South, 3 = West
-
-int lastMove = -1;
-bool justFinishedMove = false;
-
+// WiFi credentials
+const char* ssid = "Dialog NNJ";
+const char* password = "Mixtures";
+// Web server and WebSerial
+WiFiHandler OTA;
+int count =0;
+int last = millis();
 void setup() {
   Serial.begin(115200);
-  Wire.begin();
-  sensorGroup.begin();
-  imu.begin();
-  
-  solveMaze.setThreshhold(80);
+  OTA.begin(ssid, password);
 
-  leftMotor.attachEncoderInterrupt(updateLeftEncoder);
-  rightMotor.attachEncoderInterrupt(updateRightEncoder);
-
-  leftMotor.setPID(0.68, 0.0, 0.04, 50);
-  rightMotor.setPID(0.68, 0.0, 0.04, 50);
 }
 
 void loop() {
-  vector<int> sensorDistances = sensorGroup.readAll(); 
-
-  if (!Motors.cellDone && justFinishedMove) {
-    // Update position and facing direction based on lastMove
-    if (lastMove != -1) {
-      // Update facingDirection
-      facingDirection = lastMove;
-
-      // Update row and col based on new facingDirection
-      switch (lastMove) {
-        case 0: row--; break; // North
-        case 1: col++; break; // East
-        case 2: row++; break; // South
-        case 3: col--; break; // West
-      }
-    }
-    justFinishedMove = false;
+  ArduinoOTA.handle();
+  if (millis() - last > 1000) {
+    count++;
+    OTA.webSerial.println("Hello Worlds!");
+    last = millis();
   }
 
-  if(Motors.cellDone) {
-    solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
-    solveMaze.floodfill();
-    nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will also be updated from here
-
-    Motors.go(facingDirection, nextMove);
-    lastMove = nextMove;
-    justFinishedMove = true;
-  }
 }
