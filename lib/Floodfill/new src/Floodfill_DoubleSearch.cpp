@@ -411,21 +411,21 @@ int main(int argc, char* argv[]) {
         Action action = solver();
         
         if (action == FORWARD) {
-            api.moveForward();
+            floodfill.moveForward();
             //api.setColor(curCol, curRow, 'c');
             floodfill.maze.visited[curRow][curCol] = true;
             //api.setText(curCol, curRow, to_string(floodfill.maze.manhattan_distances[curRow][curCol]));
             moveForwardUpdatePos();           
 
         } else if (action == LEFT) {
-            api.turnLeft();
+            floodfill.turnLeft();
             curDir = (curDir + 3) % 4;
         } else if (action == RIGHT) {
-            api.turnRight();
+            floodfill.turnRight();
             curDir = (curDir + 1) % 4;
         } else if (action == AROUND) {
-            api.turnRight();
-            api.turnRight();
+            floodfill.turnRight();
+            floodfill.turnRight();
             curDir = (curDir + 2) % 4;
         }
 
@@ -445,8 +445,8 @@ int main(int argc, char* argv[]) {
             // log("Final Score                  : " + to_string(2000 - getStat("score")));
             // log("Highest Possible score is 2000 ");
 
-            api.turnRight();
-            api.turnRight();
+            floodfill.turnRight();
+            floodfill.turnRight();
             curDir = (curDir + 2) % 4;
 
             // Highlight explored shortest path from start to center using known walls only
@@ -533,21 +533,21 @@ void Floodfill::runFloodfill() {
         Action action = solver();
         
         if (action == FORWARD) {
-            api.moveForward();
+            floodfill.moveForward();
             //api.setColor(curCol, curRow, 'c');
             maze.visited[curRow][curCol] = true;
             //api.setText(curCol, curRow, to_string(floodfill.maze.manhattan_distances[curRow][curCol]));
             moveForwardUpdatePos();           
 
         } else if (action == LEFT) {
-            api.turnLeft();
+            floodfill.turnLeft();
             curDir = (curDir + 3) % 4;
         } else if (action == RIGHT) {
-            api.turnRight();
+            floodfill.turnRight();
             curDir = (curDir + 1) % 4;
         } else if (action == AROUND) {
-            api.turnRight();
-            api.turnRight();
+            floodfill.turnRight();
+            floodfill.turnRight();
             curDir = (curDir + 2) % 4;
         }
 
@@ -567,8 +567,8 @@ void Floodfill::runFloodfill() {
             // log("Final Score                  : " + to_string(2000 - getStat("score")));
             // log("Highest Possible score is 2000 ");
 
-            api.turnRight();
-            api.turnRight();
+            floodfill.turnRight();
+            floodfill.turnRight();
             curDir = (curDir + 2) % 4;
 
             // Highlight explored shortest path from start to center using known walls only

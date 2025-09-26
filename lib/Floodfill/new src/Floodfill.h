@@ -30,9 +30,11 @@ public:
     grid maze;
     void runFloodfill();
     void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
+    // Injection points to adapt to robot code
+    void setSensorGroup(VL6180XManagerV2* g) { sensorGroup = g; }
+    void setRobotNavigator(RobotNavigatorV2* r) { robotNavigator = r; }
     void setWall(int row, int col, int direction);
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    
-    void updateWall(int row, int col, bool front, bool left, bool right, int direction);
     void floodfill();
     void floodfillToStart();
     void final_floodfill();
