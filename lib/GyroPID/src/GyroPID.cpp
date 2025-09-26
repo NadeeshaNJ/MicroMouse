@@ -31,21 +31,24 @@ int GyroPID::calculateAnglePID() {
 
     // Calculate integral
     integralError += angleError * deltaTime;
-    integralError = constrain(integralError, -1000, 1000);  // Clamp integral
+    integralError = constrain(integralError, -200, 200);  // Clamp integral
 
     // Calculate PID output
     float anglePID = Kp * angleError + Ki * integralError + Kd * derivative;
-    
+    anglePID = constrain(anglePID, -200, 200); // Clamp output to motor limits
     previousError = angleError;
     // previousTime = currentTime;
 
-    return (int)anglePID;
+  return (int)anglePID;
 }
 bool GyroPID::checkDone(){
     //imuYaw = getYaw(); //removes because getYaw() is called in calculateAnglePID() so this will be efficient
-    Serial.println("Current Yaw: " + String(imuYaw));
-    return abs(targetYaw - imuYaw) < toleranceYaw;
+  float err = angleDiff(targetYaw, imuYaw);
+  Serial.println("Current Yaw: " + String(imuYaw) + " err:" + String(err));
+  return fabs(err) < toleranceYaw;
 }
 void GyroPID::setTargetYaw(float target) {
     targetYaw = fmodf(target + 360.0f, 360.0f); // always in [0,360)
+    integralError = 0;
+    previousError = 0;
 }

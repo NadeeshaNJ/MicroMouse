@@ -8,17 +8,17 @@
 
 class GyroPID {
  private:
-    Adafruit_BNO055 sensor;
-    float lastYaw;
+   Adafruit_BNO055 sensor;
+   float lastYaw;
     ///////////////////////////////////////
-    
-    float integralError;
-    long previousTime;
-    float previousError;
 
-    float imuYaw;   
+   float integralError = 0.0f;
+   unsigned long previousTime = 0;
+   float previousError = 0.0f;
 
-    float deltaTime = 0.14; // assuming a fixed loop time of 14ms
+   float imuYaw = 0.0f;
+
+   float deltaTime = 0.14; // assuming a fixed loop time of 14ms
 
  public:
    GyroPID();
@@ -31,13 +31,11 @@ class GyroPID {
 
    float targetYaw; //in degrees
    float Kp = 0.8; // Proportional gain for angle PID
-   float Ki = 0; // Integral gain for angle PID
-   float Kd = 0.1; // Derivative gain for angle PID
+   float Ki = 0.02; // Integral gain for angle PID
+   float Kd = 0.15; // Derivative gain for angle PID
 
-    float toleranceYaw = 3.0; // Tolerance for angle PID
-   /////////////////////////
-   
-
+    float toleranceYaw = 4.0; // Tolerance for angle PID
+   ///////////////////////// 
 };
 
 #endif

@@ -5,3 +5,26 @@ where multiple path are available for the robot an it should always try to selec
 
 //changed this so robot can work with WiFi
 //Reinitializing sensors repeatedly (or calling a method that assumes a different manager) can introduce timing/power issues on the VL6180X parts and produce I2C errors when WiFi/OTA is active.
+
+
+Quick practical tuning procedure (do this on the robot)
+Safety first: run tests at reduced speed or with wheels slightly off the ground so you can stop if it spins out.
+Start with I = 0 and D = 0. Use a small base Kp (e.g., Kp = 0.5 or something much lower than current).
+Increase Kp until the robot turns and reaches the 90° target with a small steady oscillation or slight overshoot.
+Add Kd slowly to damp the oscillation. Increase Kd until oscillations stop or are acceptably small.
+If you see a steady offset (it stops short or keeps slowly turning at low rate), add a small Ki to eliminate steady-state error. Use anti-windup (clamp the integral).
+Re-check Kp after adding Kd/Ki; you may be able to raise Kp a bit for faster response once Kd prevents oscillation.
+Iterate: small adjustments only. Log or print the error and PID output to help tune.
+Suggested starting knobs:
+
+Kp: small (0.2–1.0) depending on motor/robot inertia
+Ki: very small (0.001–0.05); often zero for fast-turning maneuvers
+Kd: moderate (0.01–0.5) to damp oscillation
+Exact values depend on your robot's inertia and motor response.
+
+Common edge cases and what they look like
+Large Kp → fast response but overshoot and oscillation.
+No/low Kd → oscillation persists (undersamped).
+Large Ki → windup and slow oscillation or runaway.
+Sensor noise or quantized angle readings → small D amplifies noise; filter derivative.
+Angle wrap problem (0↔360) → large error jumps unless you normalize the angle (use shortest path).
