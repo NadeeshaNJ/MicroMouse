@@ -63,7 +63,6 @@ void loop() {
     Motors.moveForward();
     Motors.turnRight();
     Motors.moveForward();
-    while(1){}
     Motors.turnRight();
     
     testMoveDone = true;

@@ -215,7 +215,7 @@ void RobotNavigatorV2::centerInCell() {
     sensorDistances = sensorGroup->readAll();
     //bool leftWall = sensorDistances[0] < 80;   // adjust threshold as needed
     //bool rightWall = sensorDistances[4] < 80;  // adjust threshold as needed
-    bool frontWall = sensorDistances[2] < 80;  // adjust threshold as needed
+    bool frontWall = sensorDistances[2] < 60;  // adjust threshold as needed
 
     if (!frontWall) return; // No wall to reference
     if(sensorDistances[2] > 20 && sensorDistances[2] < 40) return;

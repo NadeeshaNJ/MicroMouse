@@ -15,13 +15,13 @@ struct grid {
 class Floodfill {
 private:   
     vector<int> sensorDistances;
-    int wall_threshhold;
+    int wall_threshhold = 70;
     int direction;
     int row, col;
     bool front, left, right;
 public:
     grid maze;
-    void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
+    // void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
     void setWall(int row, int col, int direction);
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    
     void floodfill();
