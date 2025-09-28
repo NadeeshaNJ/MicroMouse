@@ -53,6 +53,7 @@ int RobotNavigatorV2::calculateWallPID() {
 }
 
 void RobotNavigatorV2::moveForward() {
+    unsigned long moveStartTime = millis();
     if (!moving) {
         Serial.println("Moving Forward");
         resetEncoders();
@@ -67,7 +68,7 @@ void RobotNavigatorV2::moveForward() {
         int currentWallPID = calculateWallPID(); //THIS IS ONLY GIVING THE ERROR NOT THE PID
         Serial.println(currentWallPID);
         getEncoderPID();
-        if(leftMotor->checkDone() && rightMotor->checkDone()) {
+        if(leftMotor->checkDone() && rightMotor->checkDone() || millis() - moveStartTime > 1500) {
             leftMotor->runMotor(0);
             rightMotor->runMotor(0);
             Serial.println("Move Done");
@@ -90,6 +91,8 @@ void RobotNavigatorV2::moveForward() {
     }
 }
 void RobotNavigatorV2::turnLeft() {
+    
+    unsigned long moveStartTime = millis();
     if(!moving) {
         Serial.println("Turning Left");
         resetEncoders();
@@ -108,7 +111,7 @@ void RobotNavigatorV2::turnLeft() {
         Serial.println("Current Angle PID: " + String(currentAnglePID));
         Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
-        if(imu->checkDone()) {
+        if(imu->checkDone() || millis() - moveStartTime > 3600) {
             leftMotor->runMotor(0);
             rightMotor->runMotor(0);
             Serial.println("Turn Done");
@@ -124,6 +127,7 @@ void RobotNavigatorV2::turnLeft() {
     }
 }
 void RobotNavigatorV2::turnRight() {
+    unsigned long moveStartTime = millis();
     if(!moving) {
         Serial.println("Turning Right");
         resetEncoders();
@@ -143,7 +147,7 @@ void RobotNavigatorV2::turnRight() {
         Serial.println("Current Angle PID: " + String(currentAnglePID));
         Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
-        if(imu->checkDone()) {            
+        if(imu->checkDone() || millis() - moveStartTime > 3600) {            
             leftMotor->runMotor(0);
             rightMotor->runMotor(0);
             Serial.println("Turn Done");

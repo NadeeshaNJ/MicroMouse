@@ -10,6 +10,13 @@
 // Forward-declare the floodfill step function defined in the Floodfill module
 void runFloodfillStep();
 
+// Global variables for robot position and maze solver
+int row = 0, col = 0, facingDirection = 0;
+Floodfill solveMaze;
+
+// Function to detect walls based on sensor readings
+void detectWalls(const std::vector<int>& distances, int currentRow, int currentCol, int facing);
+
 // Hardware instances
 int xshutPins[] = {32, 17, 16, 15, 4};
 int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
@@ -42,18 +49,52 @@ void setup() {
 
   Motors.setSensorGroup(&sensorGroup);
 
-  
-
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
-  rightMotor.attachEncoderInterrupt(updateRightEncoder);
-
-  // Basic PID values; tune as needed
-  leftMotor.setPID(3, 0.05, 0.4, 8);
-  rightMotor.setPID(3, 0.05, 0.4, 8);
+}
+void detectWalls(const std::vector<int>& distances, int currentRow, int currentCol, int facing) {
+  // Implementation for wall detection based on sensor readings
+  // This is a placeholder - implement based on your sensor arrangement and thresholds
 }
 
+
 void loop() {
-  // Run one solver step each tick so loop stays responsive
-  runFloodfillStep();
+  // 1) Read sensors
+  std::vector<int> distances = sensorGroup.readAll();
+
+  // 2) Update walls at current cell/orientation
+  detectWalls(distances, row, col, facingDirection);
+
+  // 3) Recompute distances to goal
+  solveMaze.floodfill();
+
+  // 4) Decide next best direction
+  int bestDir = solveMaze.getNextMove(row, col);
+  if (bestDir < 0) {
+    // No valid move; idle this tick
+    delay(20);
+    return;
+  }
+
+  // 5) Rotate to bestDir, then move forward one cell
+  int diff = (bestDir - facingDirection + 4) % 4;
+  if (diff == 1) {
+    Motors.turnRight();
+    facingDirection = (facingDirection + 1) % 4;
+  } else if (diff == 3) {
+    Motors.turnLeft();
+    facingDirection = (facingDirection + 3) % 4;
+  } else if (diff == 2) {
+    Motors.turnAround();
+    facingDirection = (facingDirection + 2) % 4;
+  }
+
+  Motors.moveForward();
+
+  // 6) Update pose after one cell
+  if (facingDirection == 0) row++;
+  else if (facingDirection == 1) col++;
+  else if (facingDirection == 2) row--;
+  else if (facingDirection == 3) col--;
+
   delay(20);
 }

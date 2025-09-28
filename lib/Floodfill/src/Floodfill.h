@@ -15,7 +15,7 @@ struct grid {
 class Floodfill {
 private:   
     vector<int> sensorDistances;
-    int wall_threshhold = 70;
+    int wall_threshhold = 80;
     int direction;
     int row, col;
     bool front, left, right;
