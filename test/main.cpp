@@ -1,4 +1,3 @@
-// Keep main minimal: implement the extern primitives expected by Floodfill module
 #include <Arduino.h>
 #include <vector>
 #include <VL6180XManagerV2.h>
@@ -24,7 +23,7 @@ RobotNavigatorV2 Motors(&leftMotor, &rightMotor, &imuController);
 void updateLeftEncoder() { leftMotor.updateEncoder(); }
 void updateRightEncoder() { rightMotor.updateEncoder(); }
 
-// --- Extern hooks required by Floodfill_SearchRun.cpp ---
+// Extern hooks required by Floodfill_SearchRun.cpp
 void moveForward() { Motors.moveForward(); }
 void turnLeft() { Motors.turnLeft(); }
 void turnRight() { Motors.turnRight(); }
@@ -35,7 +34,6 @@ std::vector<int> getDistances() { return sensorGroup.readAll(); }
 void setup() {
   Serial.begin(115200);
 
-  // Explicit I2C init helps avoid pin mux issues when WiFi is enabled
   Wire.begin();
   sensorGroup.begin();
   imuController.begin();
@@ -45,7 +43,7 @@ void setup() {
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
   rightMotor.attachEncoderInterrupt(updateRightEncoder);
 
-  // Basic PID values; tune as needed
+  // PID values for encoder values
   leftMotor.setPID(3, 0.05, 0.4, 8);
   rightMotor.setPID(3, 0.05, 0.4, 8);
 }
