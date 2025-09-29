@@ -72,7 +72,7 @@ void Floodfill::turnLeft() {
 void Floodfill::setWall(int row, int col, int direction) {
     if(direction == 0) {
         maze.vertical_walls[row][col].first = 1; // North wall
-        if(row+1 < 16) maze.vertical_walls[row + 1][col].second = 1; // South wall of the cell above
+        if(row+1 < 16) maze.vertical_walls[row + 1][col].second = 1; //South wall of the cell above
     }
     if(direction == 1) {
         maze.horizontal_walls[row][col].second = 1; // East wall
