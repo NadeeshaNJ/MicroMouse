@@ -95,14 +95,15 @@ void RobotNavigatorV2::turnLeft() {
     unsigned long moveStartTime = millis();
     if(!moving) {
         Serial.println("Turning Left");
-        resetEncoders();
         centerInCell();
+        resetEncoders();
+        
         float yaw = imu->getYaw();
         while (abs(yaw) < 0.1) { // or another threshold for "invalid" yaw
             delay(10);
             yaw = imu->getYaw();
         }
-        imu->setTargetYaw(yaw - 90); // Adjust target yaw for left turn
+        imu->setTargetYaw(yaw - 80); // Adjust target yaw for left turn edited for 80 degrees
         moving = true;
         cellDone = false;
     }
@@ -131,14 +132,15 @@ void RobotNavigatorV2::turnRight() {
     unsigned long moveStartTime = millis();
     if(!moving) {
         Serial.println("Turning Right");
-        resetEncoders();
+        
         centerInCell();
+        resetEncoders();
         float yaw = imu->getYaw();
         while (abs(yaw) < 0.1) { // or another threshold for "invalid" yaw
             delay(10);
             yaw = imu->getYaw();
         }
-        imu->setTargetYaw(yaw + 90); // Adjust target yaw for left turn
+        imu->setTargetYaw(yaw + 80); // Adjust target yaw for right turn
         moving = true;
         cellDone = false;
     }
@@ -196,20 +198,21 @@ void RobotNavigatorV2::centerInCell() {
     sensorDistances = sensorGroup->readAll();
     //bool leftWall = sensorDistances[0] < 80;   // adjust threshold as needed
     //bool rightWall = sensorDistances[4] < 80;  // adjust threshold as needed
-    bool frontWall = sensorDistances[2] < 60;  // adjust threshold as needed
-
+    bool frontWall = sensorDistances[2] < 120;  // adjust threshold as needed
+    Serial.println("Front Wall Distance: " + String(sensorDistances[2]));
     if (!frontWall) return; // No wall to reference
-    if(sensorDistances[2] > 20 && sensorDistances[2] < 40) return;
+    Serial.println("Front Wall is in: " + String(sensorDistances[2])+" mm");
+    if(sensorDistances[2] > 60 && sensorDistances[2] < 80) return;
 
     Serial.println("Centering in cell...");
     resetEncoders();
 
     unsigned long startTime = millis();
-    while (millis() - startTime < 600) { // Center for up to 0.6s, adjust as needed
-        int wallPID = calculateWallPID();
-        int correction = constrain(wallPID, -60, 60); // adjust as needed
-        leftMotor->runMotor(-correction);
-        rightMotor->runMotor(correction);
+    while (millis() - startTime < 1600 && sensorDistances[2] > 60 && sensorDistances[2] < 80) { // Center for up to 1.6s, adjust as needed
+        int speed = (sensorDistances[2] - 70)*20; // target distance is 70mm, adjust as needed
+        speed = constrain(speed, -150, 150); // limit speed
+        leftMotor->runMotor(-speed);
+        rightMotor->runMotor(speed);
     }
     leftMotor->runMotor(0);
     rightMotor->runMotor(0);
