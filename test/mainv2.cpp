@@ -1,71 +1,100 @@
+// Keep main minimal: implement the extern primitives expected by Floodfill module
 #include <Arduino.h>
+#include <vector>
 #include <VL6180XManagerV2.h>
-#include <Floodfill.h>
 #include <MotorPIDbyNJ.h>
 #include <RobotNavigatorV2.h>
 #include <GyroPID.h>
+#include "Floodfill.h"
 
-int xshutPins[] = {32, 17, 15, 4};
-int sensorCorrections[] = {0, 6, 16, 43, 26};  // mm to subtract from each sensor
-VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
+// Forward-declare the floodfill step function defined in the Floodfill module
+void runFloodfillStep();
 
+// Global variables for robot position and maze solver
+int row = 0, col = 0, facingDirection = 0;
 Floodfill solveMaze;
+
+// Function to detect walls based on sensor readings
+void detectWalls(const std::vector<int>& distances, int currentRow, int currentCol, int facing);
+
+// Hardware instances
+int xshutPins[] = {32, 17, 16, 15, 4};
+int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
+VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
 MotorPIDbyNJ rightMotor(14, 27, 19, 23);
-RobotNavigatorV2 Motors(&leftMotor, &rightMotor);
+GyroPID imuController;
+RobotNavigatorV2 Motors(&leftMotor, &rightMotor, &imuController);
+
+// Encoder ISRs
 void updateLeftEncoder() { leftMotor.updateEncoder(); }
 void updateRightEncoder() { rightMotor.updateEncoder(); }
 
-GyroPID imu;
-
-int row = 0;
-int col = 0;
-int facingDirection = 0;
-int nextMove = 0; // 0 = North, 1 = East, 2 = South, 3 = West
-int lastMove = -1;
-bool justFinishedMove = false;
+// --- Extern hooks required by Floodfill_SearchRun.cpp ---
+void moveForward() { Motors.moveForward(); }
+void turnLeft() { Motors.turnLeft(); }
+void turnRight() { Motors.turnRight(); }
+void turnAround() { Motors.turnAround(); }
+void moveForwardUpdatePos(); // defined in Floodfill module now does pose update
+std::vector<int> getDistances() { return sensorGroup.readAll(); }
 
 void setup() {
   Serial.begin(115200);
+
+  // Explicit I2C init helps avoid pin mux issues when WiFi is enabled
   Wire.begin();
   sensorGroup.begin();
-  imu.begin();
-  
-  solveMaze.setThreshhold(80);
+  imuController.begin();
+
+  Motors.setSensorGroup(&sensorGroup);
 
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
-  rightMotor.attachEncoderInterrupt(updateRightEncoder);
-
-  leftMotor.setPID(0.68, 0.0, 0.04, 50);
-  rightMotor.setPID(0.68, 0.0, 0.04, 50);
+}
+void detectWalls(const std::vector<int>& distances, int currentRow, int currentCol, int facing) {
+  // Implementation for wall detection based on sensor readings
+  // This is a placeholder - implement based on your sensor arrangement and thresholds
 }
 
+
 void loop() {
-    vector<int> sensorDistances = sensorGroup.readAll(); 
-    
-    if (Motors.cellDone) { // EVEN THE VARIABLE IS CALLED 'cellDone', IT SHOULD BE JUST 'done' IN THIS CASE
-    // Update position and facing direction based on lastMove
-        delay(500); // JUST to check if the code works, remove after that
-        lastMove = nextMove;
-        if (lastMove != facingDirection) {
-            // if lastMove != facingDirection then motors only have done the turn, so no need to update the locaton of the robot
-            facingDirection = lastMove;
-            
-        } 
-        else { // Update row and col based on new facingDirection
-            switch (lastMove) {
-                case 0: row--; break; // North
-                case 1: col++; break; // East
-                case 2: row++; break; // South
-                case 3: col--; break; // West
-            }
-        }
-        solveMaze.detectWalls(sensorDistances, row, col, facingDirection);
-        solveMaze.floodfill();
-        nextMove = solveMaze.getNextMove(row, col); //row and column for the next move will be updated from here
-        
-    }
-    
-    Motors.go(facingDirection, nextMove);
+  // 1) Read sensors
+  std::vector<int> distances = sensorGroup.readAll();
+
+  // 2) Update walls at current cell/orientation
+  detectWalls(distances, row, col, facingDirection);
+
+  // 3) Recompute distances to goal
+  solveMaze.floodfill();
+
+  // 4) Decide next best direction
+  int bestDir = solveMaze.getNextMove(row, col);
+  if (bestDir < 0) {
+    // No valid move; idle this tick
+    delay(20);
+    return;
+  }
+
+  // 5) Rotate to bestDir, then move forward one cell
+  int diff = (bestDir - facingDirection + 4) % 4;
+  if (diff == 1) {
+    Motors.turnRight();
+    facingDirection = (facingDirection + 1) % 4;
+  } else if (diff == 3) {
+    Motors.turnLeft();
+    facingDirection = (facingDirection + 3) % 4;
+  } else if (diff == 2) {
+    Motors.turnAround();
+    facingDirection = (facingDirection + 2) % 4;
+  }
+
+  Motors.moveForward();
+
+  // 6) Update pose after one cell
+  if (facingDirection == 0) row++;
+  else if (facingDirection == 1) col++;
+  else if (facingDirection == 2) row--;
+  else if (facingDirection == 3) col--;
+
+  delay(20);
 }
