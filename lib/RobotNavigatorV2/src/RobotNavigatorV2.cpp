@@ -103,7 +103,7 @@ void RobotNavigatorV2::turnLeft() {
             delay(10);
             yaw = imu->getYaw();
         }
-        imu->setTargetYaw(yaw - 80); // Adjust target yaw for left turn edited for 80 degrees
+        imu->setTargetYaw(yaw - 82); // Adjust target yaw for left turn edited for 82 degrees
         moving = true;
         cellDone = false;
     }
@@ -140,7 +140,7 @@ void RobotNavigatorV2::turnRight() {
             delay(10);
             yaw = imu->getYaw();
         }
-        imu->setTargetYaw(yaw + 80); // Adjust target yaw for right turn
+        imu->setTargetYaw(yaw + 82); // Adjust target yaw for right turn
         moving = true;
         cellDone = false;
     }

@@ -22,7 +22,7 @@ private:
     bool isDone;
     long target;
     int tolerance = 5; // 5mm Tolerance for PID control, can be adjusted
-    long metricConverter = 22.6; // Conversion factor for encoder value, can be adjusted (22.6 encoder = 1 mm)
+    long metricConverter = 27; // Conversion factor for encoder value, can be adjusted (27.6 encoder = 1 mm)
 
 public:
     MotorPIDbyNJ(int pin1, int pin2, int encoderPin1, int encoderPin2);
