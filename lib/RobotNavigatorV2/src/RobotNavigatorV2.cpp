@@ -198,21 +198,22 @@ void RobotNavigatorV2::centerInCell() {
     sensorDistances = sensorGroup->readAll();
     //bool leftWall = sensorDistances[0] < 80;   // adjust threshold as needed
     //bool rightWall = sensorDistances[4] < 80;  // adjust threshold as needed
-    bool frontWall = sensorDistances[2] < 120;  // adjust threshold as needed
+    bool frontWall = sensorDistances[2] < 100;  // adjust threshold as needed
     Serial.println("Front Wall Distance: " + String(sensorDistances[2]));
     if (!frontWall) return; // No wall to reference
     Serial.println("Front Wall is in: " + String(sensorDistances[2])+" mm");
-    if(sensorDistances[2] > 60 && sensorDistances[2] < 80) return;
+    if(sensorDistances[2] > 30 && sensorDistances[2] < 50) return;
 
     Serial.println("Centering in cell...");
     resetEncoders();
 
     unsigned long startTime = millis();
-    while (millis() - startTime < 1600 && sensorDistances[2] > 60 && sensorDistances[2] < 80) { // Center for up to 1.6s, adjust as needed
-        int speed = (sensorDistances[2] - 70)*20; // target distance is 70mm, adjust as needed
+    while (millis() - startTime < 1600 && (sensorDistances[2] < 30 || sensorDistances[2] > 50)) { // Center for up to 1.6s, adjust as needed
+        int speed = (sensorDistances[2] - 40)*2; // target distance is 40mm, adjust as needed
         speed = constrain(speed, -150, 150); // limit speed
-        leftMotor->runMotor(-speed);
+        leftMotor->runMotor(speed);
         rightMotor->runMotor(speed);
+        sensorDistances = sensorGroup->readAll();
     }
     leftMotor->runMotor(0);
     rightMotor->runMotor(0);
