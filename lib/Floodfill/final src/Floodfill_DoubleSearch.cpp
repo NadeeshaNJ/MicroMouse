@@ -16,12 +16,28 @@ extern void turnLeft();
 extern void turnRight();
 extern std::vector<int> getDistances(); // returns VL6180X distances: [left,...,front,...,right]
 
+enum RunMode { MODE_SEARCH_ONLY = 1, MODE_DOUBLE = 2, MODE_QUICK = 3 };
+static RunMode runMode = MODE_DOUBLE;
 // Action and robot pose/state (kept here so main.cpp stays minimal)
 enum Action { FORWARD, LEFT, RIGHT, IDLE, AROUND };
 static int curRow = 0, curCol = 0, curDir = 0;  // 0=N,1=E,2=S,3=W
 static bool reachedCenter = false;
 static bool quickRun = false; // after returning to start, perform fast run using known map only
 static Floodfill floodfill; // solver instance
+
+extern "C" void ffSetRunMode(int mode) {
+  if (mode == 1) { runMode = MODE_SEARCH_ONLY; quickRun = false; reachedCenter = false; }
+  else if (mode == 2) { runMode = MODE_DOUBLE; quickRun = false; }
+  else if (mode == 3) { runMode = MODE_QUICK; quickRun = true; }
+}
+
+extern "C" bool ffAtCenter() {
+  return (curRow == 7 || curRow == 8) && (curCol == 7 || curCol == 8);
+}
+
+extern "C" bool ffAtStart() {
+  return (curRow == 0 && curCol == 0);
+} 
 
 bool Floodfill::atGoal(int row, int col) {
     return (row == 7 || row == 8) && (col == 7 || col == 8);
@@ -297,34 +313,41 @@ void moveForwardUpdatePos() {
 }
 
 static Action solver() {
-    // In quickRun, do NOT update walls anymore; just follow known map
-    if (!quickRun) {
-        std::vector<int> distances = getDistances();
-        floodfill.detectWalls(distances, curRow, curCol, curDir);
-    }
+  // In quick mode, do NOT update walls; otherwise keep sensing
+  if (!quickRun) {
+    std::vector<int> distances = getDistances();
+    floodfill.detectWalls(distances, curRow, curCol, curDir);
+  }
 
-    // If you want double-search (return to start after center), toggle reachedCenter here
-    if (!reachedCenter && floodfill.atGoal(curRow, curCol)) {
-        reachedCenter = true; // center reached (optional behavior)
-    }
-    // When we get back to start after reaching center, switch to quick run
-    if (reachedCenter && curRow == 0 && curCol == 0) {
-        quickRun = true; // start fast run to center using known cells only
-    }
+  // Only flip center flag automatically in modes that want it
+  if (runMode != MODE_SEARCH_ONLY && !reachedCenter && floodfill.atGoal(curRow, curCol)) {
+    reachedCenter = true;
+  }
 
-    int bestDir = -1;
-    if (quickRun) {
-        floodfill.final_floodfill();                // constrain to visited cells
-        bestDir = floodfill.getNextMove(curRow, curCol);
-    } else if (reachedCenter) {
-        floodfill.floodfillToStart();               // reverse distances to (0,0)
-        floodfill.floodfill();                      // keep manhattan up to date too
-        bestDir = floodfill.reverse_getNextMove(curRow, curCol);
-    } else {
-        floodfill.floodfill();
-        bestDir = floodfill.getNextMove(curRow, curCol);
-    }
-    return rotateTo(bestDir);
+  // If we got back to start after reaching center, auto-switch to quick run unless user forced a mode
+  if (runMode == MODE_DOUBLE && reachedCenter && curRow == 0 && curCol == 0) {
+    quickRun = true;
+  }
+
+  int bestDir = -1;
+  if (runMode == MODE_QUICK || quickRun) {
+    floodfill.final_floodfill();
+    bestDir = floodfill.getNextMove(curRow, curCol);
+  } else if (runMode == MODE_DOUBLE && reachedCenter) {
+    floodfill.floodfillToStart();
+    floodfill.floodfill();
+    bestDir = floodfill.reverse_getNextMove(curRow, curCol);
+  } else {
+    floodfill.floodfill();
+    bestDir = floodfill.getNextMove(curRow, curCol);
+  }
+
+  // If user chose search-only and we are at center, stop (report IDLE)
+  if (runMode == MODE_SEARCH_ONLY && floodfill.atGoal(curRow, curCol)) {
+    return IDLE;
+  }
+
+  return rotateTo(bestDir);
 }
 
 // Perform a single floodfill decision + action; call repeatedly from loop()
