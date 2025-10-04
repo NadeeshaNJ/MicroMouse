@@ -30,13 +30,12 @@ void updateRightEncoder() { rightMotor.updateEncoder(); }
 void moveForward() { Motors.moveForward(); }
 void turnLeft() { Motors.turnLeft(); }
 void turnRight() { Motors.turnRight(); }
-void turnAround() { Motors.turnAround(); }
+//void turnAround() { Motors.turnAround(); }
 void moveForwardUpdatePos(); // defined in Floodfill module now does pose update
 std::vector<int> getDistances() { return sensorGroup.readAll(); }
 
 void setup() {
   Serial.begin(115200);
-
   Wire.begin();
   sensorGroup.begin();
   imuController.begin();
@@ -46,7 +45,7 @@ void setup() {
   leftMotor.attachEncoderInterrupt(updateLeftEncoder);
   rightMotor.attachEncoderInterrupt(updateRightEncoder);
 
-  // PID values for encoder values
+  // PID values for encoders
   leftMotor.setPID(3, 0.05, 0.4, 8);
   rightMotor.setPID(3, 0.05, 0.4, 8);
 }
