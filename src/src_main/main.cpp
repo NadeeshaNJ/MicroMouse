@@ -6,10 +6,12 @@
 #include <GyroPID.h>
 #include "Floodfill.h"
 
+#define FINAL_RUN_BUTTON 2  // GPIO pin for the final run button
+
 // Forward-declare the floodfill step function defined in the Floodfill module
 void runFloodfillStep();
 bool isRobotDone(); // defined in Floodfill module
-
+bool BeginFinalRun();
 // Floodfill solver instance
 
 // Hardware instances
@@ -48,10 +50,21 @@ void setup() {
   // PID values for encoder values
   leftMotor.setPID(3, 0.05, 0.4, 8);
   rightMotor.setPID(3, 0.05, 0.4, 8);
+
+  pinMode(FINAL_RUN_BUTTON, INPUT_PULLDOWN);
+  pinMode(33, OUTPUT); // onboard buzzer
 }
 
 void loop() {
-    runFloodfillStep();
-    delay(20);
+  
+  if (digitalRead(FINAL_RUN_BUTTON) == HIGH) {  // assuming active HIGH
+      delay(1000);
+      BeginFinalRun();
+      digitalWrite(33, HIGH);  // turn on buzzer
+      delay(500);
+              // reset heading to North
+  }
+  runFloodfillStep();
+  delay(20);
 }
 

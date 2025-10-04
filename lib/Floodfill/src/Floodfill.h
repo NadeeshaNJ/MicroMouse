@@ -26,6 +26,7 @@ public:
     grid maze;
     // void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
     bool RobotDone = false;
+    bool LastRun = false;
 
     void setWall(int row, int col, int direction);
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    

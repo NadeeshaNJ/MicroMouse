@@ -1,7 +1,3 @@
-// Micromouse floodfill maze-solving algorithm (on-robot variant)
-// Removes MMS Simulator API usage and main(); integrates with robot by:
-// 1) Detecting walls from sensor distances (threshold-based)
-// 2) Providing floodfill() and getNextMove() you can call from your code
 #include <array>
 #include <queue>
 #include <utility>
@@ -68,7 +64,7 @@ bool Floodfill::hasWall(int row, int col, int dir) {
     return false; // No walls
 }
 
-void Floodfill::floodfill(array<array<int, 16>, 16> &dist) {
+void Floodfill::floodfill(array<array<int, 16>, 16> &dist, int goalRow, int goalCol) {
     queue<pair<int, int>> q;    
     for (auto &row : dist) {
         row.fill(200);
@@ -90,22 +86,22 @@ void Floodfill::floodfill(array<array<int, 16>, 16> &dist) {
         q.push({0, 0});
         reached[0][0] = true;
     }
-    
+
     maze.visited[8][8] = true;
     maze.visited[8][7] = true;
     maze.visited[7][8] = true;
     maze.visited[7][7] = true;
     maze.visited[0][0] = true;
     
-    //q.push({8, 8}); q.push({8, 7}); q.push({7, 8}); q.push({7, 7});       
+    // q.push({8, 8}); q.push({8, 7}); q.push({7, 8}); q.push({7, 7});       
 
-    
-    //reached[8][8] = reached[8][7] = reached[7][8] = reached[7][7] = true; // Marking the goal cells as reached
+    // array<array<bool, 16>, 16> reached = {};
+    // reached[8][8] = reached[8][7] = reached[7][8] = reached[7][7] = true; // Marking the goal cells as reached
     
     // BFS to fill the manhattan distances
     while(!q.empty()){
         pair<int,int> cell = q.front();
-        q.pop();        
+        q.pop();
 
         if(cell.first > 15 || cell.second > 15 || cell.first < 0 || cell.second < 0) continue; // out of bounds
 
@@ -132,57 +128,80 @@ void Floodfill::floodfill(array<array<int, 16>, 16> &dist) {
     }
 }
 
-int Floodfill::getNextMove(int row, int col /*int direction //for optimize movement(for later improvement)*/) {
+int Floodfill::getNextMove(array<array<int, 16>, 16> &dist,int row, int col /*int direction //for optimize movement(for later improvement)*/) {
     int minDist = 255;
     int bestDirection = -1;
 
     // int nextRow = row;
     // int nextCol = col;
 
-    if(row < 15 && !hasWall(row, col, 0) && maze.manhattan_distances[row + 1][col] < minDist) {
-        minDist = maze.manhattan_distances[row + 1][col];
+    if(row < 15 && !hasWall(row, col, 0) && dist[row + 1][col] < minDist) {
+        minDist = dist[row + 1][col];
         bestDirection = 0;
     }
-    if(col < 15 && !hasWall(row, col, 1) && maze.manhattan_distances[row][col + 1] < minDist) {
-        minDist = maze.manhattan_distances[row][col + 1];
+    if(col < 15 && !hasWall(row, col, 1) && dist[row][col + 1] < minDist) {
+        minDist = dist[row][col + 1];
         bestDirection = 1;
     }
-    if(row > 0 && !hasWall(row, col, 2) && maze.manhattan_distances[row - 1][col] < minDist) {
-        minDist = maze.manhattan_distances[row - 1][col];
+    if(row > 0 && !hasWall(row, col, 2) && dist[row - 1][col] < minDist) {
+        minDist = dist[row - 1][col];
         bestDirection = 2;
     }
-    if(col > 0 && !hasWall(row, col, 3) && maze.manhattan_distances[row][col - 1] < minDist) {
-        minDist = maze.manhattan_distances[row][col - 1];
+    if(col > 0 && !hasWall(row, col, 3) && dist[row][col - 1] < minDist) {
+        minDist = dist[row][col - 1];
         bestDirection = 3;
     }
 
     return bestDirection; // Return the best direction to move based on the minimum distance
+    // int minDist = 255;
+    // int bestDirection = -1;
+
+    // for (int dir = 0; dir < 4; ++dir) {
+    //     int r = row, c = col;
+
+    //     if (dir == 0 && !hasWall(row, col, 0)) r++;
+    //     else if (dir == 1 && !hasWall(row, col, 1)) c++;
+    //     else if (dir == 2 && !hasWall(row, col, 2)) r--;
+    //     else if (dir == 3 && !hasWall(row, col, 3)) c--;
+    //     else continue;  // skip if there's a wall
+
+    //     if (r < 0 || r >= 16 || c < 0 || c >= 16) continue;
+
+    //     int dist = maze.manhattan_distances[r][c];
+
+    //     if (dist < minDist || (dist == minDist && dir == curDir)) {
+    //         minDist = dist;
+    //         bestDirection = dir;
+    //     }
+    // }
+
+    // return bestDirection;
 }
-int Floodfill::reverse_getNextMove(int row, int col) {
-    int minDist = 255;
-    int bestDirection = -1;
+// int Floodfill::reverse_getNextMove(int row, int col) {
+//     int minDist = 255;
+//     int bestDirection = -1;
 
-    for (int dir = 0; dir < 4; ++dir) {
-        int r = row, c = col;
+//     for (int dir = 0; dir < 4; ++dir) {
+//         int r = row, c = col;
 
-        if (dir == 0 && !hasWall(row, col, 0)) r++;
-        else if (dir == 1 && !hasWall(row, col, 1)) c++;
-        else if (dir == 2 && !hasWall(row, col, 2)) r--;
-        else if (dir == 3 && !hasWall(row, col, 3)) c--;
-        else continue;  // skip if there's a wall
+//         if (dir == 0 && !hasWall(row, col, 0)) r++;
+//         else if (dir == 1 && !hasWall(row, col, 1)) c++;
+//         else if (dir == 2 && !hasWall(row, col, 2)) r--;
+//         else if (dir == 3 && !hasWall(row, col, 3)) c--;
+//         else continue;  // skip if there's a wall
 
-        if (r < 0 || r >= 16 || c < 0 || c >= 16) continue;
+//         if (r < 0 || r >= 16 || c < 0 || c >= 16) continue;
 
-        int dist = maze.reverse_manhattan_distances[r][c];
+//         int dist = maze.reverse_manhattan_distances[r][c];
 
-        if (dist < minDist || (dist == minDist && dir == curDir)) {
-            minDist = dist;
-            bestDirection = dir;
-        }
-    }
+//         if (dist < minDist || (dist == minDist && dir == curDir)) {
+//             minDist = dist;
+//             bestDirection = dir;
+//         }
+//     }
 
-    return bestDirection;
-}
+//     return bestDirection;
+// }
 
 // --- Solver helpers and main loop (preserve your structure) ---
 static Action rotateTo(int newDir) {
@@ -206,30 +225,31 @@ static Action solver() {
     // Read sensors from main and update walls
     std::vector<int> distances = getDistances();
     floodfill.detectWalls(distances, curRow, curCol, curDir);
-    int bestDir = -1;
 
     // If you want double-search (return to start after center), toggle reachedCenter here
     if (!reachedCenter && floodfill.atGoal(curRow, curCol)) {
         reachedCenter = true; // center reached (optional behavior)
-        //while(1);
+        return IDLE;
     }
-    // else if(reachedCenter) {
-    //     floodfill.floodfill(floodfill.maze.reverse_manhattan_distances);
-    //     //floodfill.floodfill(floodfill.maze.manhattan_distances);
-    //     bestDir = floodfill.reverse_getNextMove(curRow, curCol);
-    // }
-    else{
-        // Compute floodfill and choose next direction
-        floodfill.floodfill(floodfill.maze.manhattan_distances);
-        int bestDir = floodfill.getNextMove(curRow, curCol);
-
-
-        // Reached start again; stop moving
-        //floodfill.RobotDone = true;
+    else if(reachedCenter && curRow == 0 && curCol == 0) {
+        floodfill.RobotDone = true;
+        return IDLE;    
     }
 
+    // Compute floodfill and choose next direction
+    if (!reachedCenter) {
+        // search phase → goal is center
+        floodfill.floodfill(floodfill.maze.manhattan_distances, 7, 7);  
+        int bestDir = floodfill.getNextMove(floodfill.maze.manhattan_distances, curRow, curCol);
+        return rotateTo(bestDir);  
+    } else{
+        // return phase → goal is start
+        floodfill.floodfill(floodfill.maze.reverse_manhattan_distances, 0, 0);
+        int bestDir = floodfill.getNextMove(floodfill.maze.reverse_manhattan_distances, curRow, curCol);
+        return rotateTo(bestDir);
+    }
     
-    return rotateTo(bestDir);
+    
 }
 
 // Perform a single floodfill decision + action; call repeatedly from loop()
