@@ -26,16 +26,16 @@ public:
     grid maze;
     // void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
     bool RobotDone = false;
-    
+    bool LastRun = false;
+
     void setWall(int row, int col, int direction);
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    
     void floodfill(std::array<std::array<int, 16>, 16> &manhattan_distances, int goalRow, int goalCol);
-    void floodfillToStart();
     bool hasWall(int row, int col, int dir);
-    int getNextMove(int row, int col); //next row column will also be automatically update from this function
-    int reverse_getNextMove(int row, int col); //next row column will also be automatically update from this function
+    int getNextMove(array<array<int, 16>, 16> &dist,int row, int col); //next row column will also be automatically update from this function
     bool atGoal(int row, int col); //check if robot came to the goal
-    bool isRobotDone();
+
+    void floodfillToStart();
 };
 //both detectWall and updateWall do the same thing but with different parameters
 #endif

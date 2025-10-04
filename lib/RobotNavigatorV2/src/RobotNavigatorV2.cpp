@@ -17,9 +17,9 @@ void RobotNavigatorV2::setTargets(long targetLeft, long targetRight) {
 
 void RobotNavigatorV2::getEncoderPID() {
     leftEncoderPID = leftMotor->calculateEncoderPID();
-    Serial.println("Left Encoder PID: " + String(leftEncoderPID));
+    //Serial.println("Left Encoder PID: " + String(leftEncoderPID));
     rightEncoderPID = rightMotor->calculateEncoderPID();
-    Serial.println("Right Encoder PID: " + String(rightEncoderPID));
+    //Serial.println("Right Encoder PID: " + String(rightEncoderPID));
 }
 
 
@@ -59,13 +59,12 @@ int RobotNavigatorV2::calculateWallPID() {
 void RobotNavigatorV2::moveForward() {
     unsigned long moveStartTime = millis();
     if (!moving) {
-        Serial.println("Moving Forward");
+        //Serial.println("Moving Forward");
         resetEncoders();
         leftMotor->setTarget(192);
         rightMotor->setTarget(192);
         moving = true;
         cellDone = false;
-        //unsigned long moveStartTime = millis(); // Start time for move timeout
     }
     while(moving){
         
@@ -75,7 +74,7 @@ void RobotNavigatorV2::moveForward() {
         if(leftMotor->checkDone() && rightMotor->checkDone() || millis() - moveStartTime > 1500) {
             leftMotor->runMotor(0);
             rightMotor->runMotor(0);
-            Serial.println("Move Done");
+            //Serial.println("Move Done");
             cellDone = true;
             moving = false; 
         }
@@ -85,13 +84,6 @@ void RobotNavigatorV2::moveForward() {
             leftMotor->runMotor(speedL);
             rightMotor->runMotor(speedR);
         }
-        // if (millis() - moveStartTime > 3000) {
-        //     Serial.println("Move timeout! Aborting move.");
-        //     moving = false;
-        //     cellDone = false;
-        // }
-        
-        
     }
 }
 void RobotNavigatorV2::turnLeft() {
@@ -114,13 +106,13 @@ void RobotNavigatorV2::turnLeft() {
     while(moving){
         //centerInCell();
         int currentAnglePID = imu->calculateAnglePID();
-        Serial.println("Current Angle PID: " + String(currentAnglePID));
-        Serial.println("Target Yaw:               " + String(imu->targetYaw) );
+        //Serial.println("Current Angle PID: " + String(currentAnglePID));
+        //Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
         if(imu->checkDone() || millis() - moveStartTime > 3600) {
             leftMotor->runMotor(0);
             rightMotor->runMotor(0);
-            Serial.println("Turn Done");
+            //Serial.println("Turn Done");
             cellDone = true;
             moving = false; 
         }
@@ -152,13 +144,13 @@ void RobotNavigatorV2::turnRight() {
         //centerInCell();
         
         int currentAnglePID = imu->calculateAnglePID();
-        Serial.println("Current Angle PID: " + String(currentAnglePID));
-        Serial.println("Target Yaw:               " + String(imu->targetYaw) );
+        //Serial.println("Current Angle PID: " + String(currentAnglePID));
+        //Serial.println("Target Yaw:               " + String(imu->targetYaw) );
 
         if(imu->checkDone() || millis() - moveStartTime > 3600) {            
             leftMotor->runMotor(0);
             rightMotor->runMotor(0);
-            Serial.println("Turn Done");
+            //Serial.println("Turn Done");
             cellDone = true;
             moving = false; 
         }
@@ -208,7 +200,7 @@ void RobotNavigatorV2::centerInCell() {
     Serial.println("Front Wall is in: " + String(sensorDistances[2])+" mm");
     if(sensorDistances[2] > 25 && sensorDistances[2] < 40) return;
 
-    Serial.println("Centering in cell...");
+    //Serial.println("Centering in cell...");
     resetEncoders();
 
     unsigned long startTime = millis();
@@ -221,32 +213,32 @@ void RobotNavigatorV2::centerInCell() {
     }
     leftMotor->runMotor(0);
     rightMotor->runMotor(0);
-    Serial.println("Centered.");
+    //Serial.println("Centered.");
 }
 
-void RobotNavigatorV2::turnAround() {
-    if(!moving) {
-        Serial.println("Turning Around");
-        resetEncoders();
-        imu->setTargetYaw(imu->getYaw() - 180); // Adjust target yaw for left turn
-        moving = true;
-        cellDone = false;
-    }
-    while(moving){        
+// void RobotNavigatorV2::turnAround() {
+//     if(!moving) {
+//         Serial.println("Turning Around");
+//         resetEncoders();
+//         imu->setTargetYaw(imu->getYaw() - 180); // Adjust target yaw for left turn
+//         moving = true;
+//         cellDone = false;
+//     }
+//     while(moving){        
         
-        int currentAnglePID = imu->calculateAnglePID();
-        Serial.println("Current Angle PID: " + String(currentAnglePID));
+//         int currentAnglePID = imu->calculateAnglePID();
+//         Serial.println("Current Angle PID: " + String(currentAnglePID));
 
-        if(imu->checkDone() && imu->checkDone()) {
-            Serial.println("Turn Done");
-            cellDone = true;
-            moving = false; 
-        }
-        else{
-            speedL = constrain((0 - currentAnglePID),-255,255);
-            speedR = constrain((0 + currentAnglePID),-255,255);
-            leftMotor->runMotor(speedL);
-            rightMotor->runMotor(speedR);
-        }
-    }
-}
+//         if(imu->checkDone() && imu->checkDone()) {
+//             Serial.println("Turn Done");
+//             cellDone = true;
+//             moving = false; 
+//         }
+//         else{
+//             speedL = constrain((0 - currentAnglePID),-255,255);
+//             speedR = constrain((0 + currentAnglePID),-255,255);
+//             leftMotor->runMotor(speedL);
+//             rightMotor->runMotor(speedR);
+//         }
+//     }
+// }
