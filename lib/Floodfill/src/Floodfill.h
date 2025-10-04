@@ -31,7 +31,7 @@ public:
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    
     void floodfill(std::array<std::array<int, 16>, 16> &manhattan_distances, int goalRow, int goalCol);
     bool hasWall(int row, int col, int dir);
-    int getNextMove(int row, int col); //next row column will also be automatically update from this function
+    int getNextMove(array<array<int, 16>, 16> &dist,int row, int col); //next row column will also be automatically update from this function
     int reverse_getNextMove(int row, int col); //next row column will also be automatically update from this function
     bool atGoal(int row, int col); //check if robot came to the goal
 

@@ -30,7 +30,6 @@ void updateRightEncoder() { rightMotor.updateEncoder(); }
 void moveForward() { Motors.moveForward(); }
 void turnLeft() { Motors.turnLeft(); }
 void turnRight() { Motors.turnRight(); }
-void turnAround() { Motors.turnAround(); }
 void moveForwardUpdatePos(); // defined in Floodfill module now does pose update
 std::vector<int> getDistances() { return sensorGroup.readAll(); }
 
@@ -52,12 +51,6 @@ void setup() {
 }
 
 void loop() {
-  // Run one solver step each tick so loop stays responsive
-  // if (!isRobotDone()) {
-  //   runFloodfillStep();
-  //   delay(20);
-  // }
-  
     runFloodfillStep();
     delay(20);
 }
