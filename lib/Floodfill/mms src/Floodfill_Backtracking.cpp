@@ -18,7 +18,7 @@ enum Action { FORWARD, LEFT, RIGHT, IDLE, AROUND};
 int idx[] = {0,1,3,2};
 int curRow = 0, curCol = 0, curDir = 0;  // 0=north,1=east,2=south,3=west
 bool reachedCenter = false;
-bool rerun = false; 
+
 
 float getStat(const std::string& statName) {
     std::cout << "getStat " << statName << std::endl;
@@ -401,54 +401,10 @@ int main(int argc, char* argv[]) {
             curDir = (curDir + 2) % 4;
 
             // Highlight explored shortest path from start to center using known walls only
-            //floodfill.final_floodfill();
-            int row = 0, col = 0;
-            API::setColor(col, row, 'C');  // Highlight starting point
-
-            while (!atGoal(row, col)) {
-                int currentDist = floodfill.maze.manhattan_distances[row][col];
-                int nextRow = row, nextCol = col;
-
-                for (int dir = 0; dir < 4; ++dir) {
-                    int r = row, c = col;
-
-                    if (dir == 0 && !floodfill.hasWall(row, col, 0)) r++;
-                    else if (dir == 1 && !floodfill.hasWall(row, col, 1)) c++;
-                    else if (dir == 2 && !floodfill.hasWall(row, col, 2)) r--;
-                    else if (dir == 3 && !floodfill.hasWall(row, col, 3)) c--;
-                    else continue;
-
-                    if (r >= 0 && r < 16 && c >= 0 && c < 16 && floodfill.maze.visited[r][c] && floodfill.maze.manhattan_distances[r][c] < currentDist) {
-                        nextRow = r;
-                        nextCol = c;
-                        break;
-                    }
-                    }
-                    // If after checking all directions, we didn't move (still at same cell), path is blocked
-                    if (row == nextRow && col == nextCol) {
-                        log("Path to goal is blocked or incomplete. Re-run the floodfill...");
-                        rerun = true; //rerun the robot through the calculated shorter path
-                        // Try to find a new path if the current one is blocked
-                        reachedCenter = false;
-                        goto path_blocked;
-                }
-
-                row = nextRow;
-                col = nextCol;
-                API::setColor(col, row, 'C');  // Color path step
-            }        
-            break;
-        }
-        path_blocked:
-        if (!reachedCenter && atGoal(curRow, curCol)) {
-            log("Reached center. Reversing goal to return home...");
-            reachedCenter = true;
-        }
-        if(rerun && atGoal(curRow, curCol)) {
-            // Highlight explored shortest path from start to center using known walls only
             floodfill.final_floodfill();
             int row = 0, col = 0;
             API::setColor(col, row, 'C');  // Highlight starting point
+
             while (!atGoal(row, col)) {
                 int currentDist = floodfill.maze.manhattan_distances[row][col];
                 int nextRow = row, nextCol = col;
@@ -473,7 +429,12 @@ int main(int argc, char* argv[]) {
                 col = nextCol;
                 API::setColor(col, row, 'C');  // Color path step
             }
+
             break;
+        }
+        if (!reachedCenter && atGoal(curRow, curCol)) {
+            log("Reached center. Reversing goal to return home...");
+            reachedCenter = true;
         }
 
         Action action = solver();

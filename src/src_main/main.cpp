@@ -8,6 +8,9 @@
 
 // Forward-declare the floodfill step function defined in the Floodfill module
 void runFloodfillStep();
+bool isRobotDone(); // defined in Floodfill module
+
+// Floodfill solver instance
 
 // Hardware instances
 int xshutPins[] = {32, 17, 16, 15, 4};
@@ -50,6 +53,11 @@ void setup() {
 
 void loop() {
   // Run one solver step each tick so loop stays responsive
-  runFloodfillStep();
-  delay(20);
+  if (!isRobotDone()) {
+    runFloodfillStep();
+    delay(20);
+  }
 }
+
+
+//hi

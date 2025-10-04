@@ -20,6 +20,7 @@ extern std::vector<int> getDistances(); // returns VL6180X distances: [left,...,
 enum Action { FORWARD, LEFT, RIGHT, IDLE, AROUND };
 static int curRow = 0, curCol = 0, curDir = 0;  // 0=N,1=E,2=S,3=W
 static bool reachedCenter = false;
+
 static Floodfill floodfill; // solver instance
 
 bool Floodfill::atGoal(int row, int col) {
@@ -67,16 +68,24 @@ bool Floodfill::hasWall(int row, int col, int dir) {
     return false; // No walls
 }
 
-void Floodfill::floodfill() {
+void Floodfill::floodfill(array<array<int, 16>, 16> &dist, int goalRow, int goalCol) {
     queue<pair<int, int>> q;    
 
-    for (auto& row : maze.manhattan_distances)
-        row.fill(255); // Re-initialize all distances to a large number
+    // maze.manhattan_distances[8][8] = 0; //row,column
+    // maze.manhattan_distances[8][7] = 0;
+    // maze.manhattan_distances[7][8] = 0;
+    // maze.manhattan_distances[7][7] = 0; // Goal
 
-    maze.manhattan_distances[8][8] = 0; //row,column
-    maze.manhattan_distances[8][7] = 0;
-    maze.manhattan_distances[7][8] = 0;
-    maze.manhattan_distances[7][7] = 0; // Goal
+    dist[goalRow][goalCol] = 0;
+    dist[goalRow][goalCol+1] = 0;
+    dist[goalRow+1][goalCol] = 0;
+    dist[goalRow+1][goalCol+1] = 0;
+
+    maze.visited[8][8] = true;
+    maze.visited[8][7] = true;
+    maze.visited[7][8] = true;
+    maze.visited[7][7] = true;
+    maze.visited[0][0] = true;
     
     q.push({8, 8}); q.push({8, 7}); q.push({7, 8}); q.push({7, 7});       
 
@@ -91,30 +100,73 @@ void Floodfill::floodfill() {
         if(cell.first > 15 || cell.second > 15 || cell.first < 0 || cell.second < 0) continue; // out of bounds
 
         if(cell.second > 0 && !maze.horizontal_walls[cell.first][cell.second].first && !reached[cell.first][cell.second - 1]) {// No wall to the left
-            maze.manhattan_distances[cell.first][cell.second - 1] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            dist[cell.first][cell.second - 1] = dist[cell.first][cell.second] + 1;
             q.push({cell.first, cell.second - 1});
             reached[cell.first][cell.second - 1] = true; // Marking the cell as reached            
         }
         if(cell.first < 15 && !maze.vertical_walls[cell.first][cell.second].first && !reached[cell.first + 1][cell.second]) {// No wall above
-            maze.manhattan_distances[cell.first + 1][cell.second] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            dist[cell.first + 1][cell.second] = dist[cell.first][cell.second] + 1;
             q.push({cell.first + 1, cell.second});
             reached[cell.first + 1][cell.second] = true; // Marking the cell as reached
         }
         if(cell.second < 15 && !maze.horizontal_walls[cell.first][cell.second].second && !reached[cell.first][cell.second + 1]) {// No wall to the right
-            maze.manhattan_distances[cell.first][cell.second + 1] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            dist[cell.first][cell.second + 1] = dist[cell.first][cell.second] + 1;
             q.push({cell.first, cell.second + 1});
             reached[cell.first][cell.second + 1] = true; // Marking the cell as reached
         }
         if(cell.first > 0 && !maze.vertical_walls[cell.first][cell.second].second && !reached[cell.first - 1][cell.second]) {// No wall below
-            maze.manhattan_distances[cell.first - 1][cell.second] = maze.manhattan_distances[cell.first][cell.second] + 1;
+            dist[cell.first - 1][cell.second] = dist[cell.first][cell.second] + 1;
             q.push({cell.first - 1, cell.second});
             reached[cell.first - 1][cell.second] = true; // Marking the cell as reached
         }
     }
+}
 
-    for (int r = 0; r < 16; ++r) {
-        for (int c = 0; c < 16; ++c) {
-            int dist = maze.manhattan_distances[r][c];
+void Floodfill::floodfillToStart() {
+    queue<pair<int, int>> q;
+
+    // New goal is the start: bottom-left of the maze
+    maze.reverse_manhattan_distances[0][0] = 0;
+    q.push({0, 0});
+
+    array<array<bool, 16>, 16> reached = {};
+    reached[0][0] = true;
+
+    while (!q.empty()) {
+        pair<int, int> cell = q.front();
+        q.pop();
+
+        int row = cell.first;
+        int col = cell.second;
+
+        if (row < 0 || row > 15 || col < 0 || col > 15) continue;
+
+        // WEST
+        if (col > 0 && !maze.horizontal_walls[row][col].first && !reached[row][col - 1]) {
+            maze.reverse_manhattan_distances[row][col - 1] = maze.reverse_manhattan_distances[row][col] + 1;
+            q.push({row, col - 1});
+            reached[row][col - 1] = true;
+        }
+
+        // NORTH
+        if (row < 15 && !maze.vertical_walls[row][col].first && !reached[row + 1][col]) {
+            maze.reverse_manhattan_distances[row + 1][col] = maze.reverse_manhattan_distances[row][col] + 1;
+            q.push({row + 1, col});
+            reached[row + 1][col] = true;
+        }
+
+        // EAST
+        if (col < 15 && !maze.horizontal_walls[row][col].second && !reached[row][col + 1]) {
+            maze.reverse_manhattan_distances[row][col + 1] = maze.reverse_manhattan_distances[row][col] + 1;
+            q.push({row, col + 1});
+            reached[row][col + 1] = true;
+        }
+
+        // SOUTH
+        if (row > 0 && !maze.vertical_walls[row][col].second && !reached[row - 1][col]) {
+            maze.reverse_manhattan_distances[row - 1][col] = maze.reverse_manhattan_distances[row][col] + 1;
+            q.push({row - 1, col});
+            reached[row - 1][col] = true;
         }
     }
 }
@@ -145,7 +197,31 @@ int Floodfill::getNextMove(int row, int col /*int direction //for optimize movem
 
     return bestDirection; // Return the best direction to move based on the minimum distance
 }
+int Floodfill::reverse_getNextMove(int row, int col) {
+    int minDist = 255;
+    int bestDirection = -1;
 
+    for (int dir = 0; dir < 4; ++dir) {
+        int r = row, c = col;
+
+        if (dir == 0 && !hasWall(row, col, 0)) r++;
+        else if (dir == 1 && !hasWall(row, col, 1)) c++;
+        else if (dir == 2 && !hasWall(row, col, 2)) r--;
+        else if (dir == 3 && !hasWall(row, col, 3)) c--;
+        else continue;  // skip if there's a wall
+
+        if (r < 0 || r >= 16 || c < 0 || c >= 16) continue;
+
+        int dist = maze.reverse_manhattan_distances[r][c];
+
+        if (dist < minDist || (dist == minDist && dir == curDir)) {
+            minDist = dist;
+            bestDirection = dir;
+        }
+    }
+
+    return bestDirection;
+}
 
 // --- Solver helpers and main loop (preserve your structure) ---
 static Action rotateTo(int newDir) {
@@ -173,10 +249,15 @@ static Action solver() {
     // If you want double-search (return to start after center), toggle reachedCenter here
     if (!reachedCenter && floodfill.atGoal(curRow, curCol)) {
         reachedCenter = true; // center reached (optional behavior)
+        while(1);
+    }
+    else if( reachedCenter && floodfill.atGoal(curRow, curCol)) {
+        // Reached start again; stop moving
+        floodfill.RobotDone = true;
     }
 
     // Compute floodfill and choose next direction
-    floodfill.floodfill();
+    floodfill.floodfill(floodfill.maze.manhattan_distances, 7, 7);
     int bestDir = floodfill.getNextMove(curRow, curCol);
     return rotateTo(bestDir);
 }
@@ -206,3 +287,6 @@ void runFloodfillStep() {
         return;
     }
 }
+bool isRobotDone() {
+        return floodfill.RobotDone;
+    }
