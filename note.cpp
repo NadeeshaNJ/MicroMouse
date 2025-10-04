@@ -1,3 +1,7 @@
+// Micromouse floodfill maze-solving algorithm (on-robot variant)
+// Removes MMS Simulator API usage and main(); integrates with robot by:
+// 1) Detecting walls from sensor distances (threshold-based)
+// 2) Providing floodfill() and getNextMove() you can call from your code
 #include <array>
 #include <queue>
 #include <utility>
@@ -64,7 +68,7 @@ bool Floodfill::hasWall(int row, int col, int dir) {
     return false; // No walls
 }
 
-void Floodfill::floodfill(array<array<int, 16>, 16> &dist, int goalRow, int goalCol) {
+void Floodfill::floodfill(array<array<int, 16>, 16> &dist) {
     queue<pair<int, int>> q;    
     for (auto &row : dist) {
         row.fill(200);
@@ -86,22 +90,22 @@ void Floodfill::floodfill(array<array<int, 16>, 16> &dist, int goalRow, int goal
         q.push({0, 0});
         reached[0][0] = true;
     }
-
+    
     maze.visited[8][8] = true;
     maze.visited[8][7] = true;
     maze.visited[7][8] = true;
     maze.visited[7][7] = true;
     maze.visited[0][0] = true;
     
-    // q.push({8, 8}); q.push({8, 7}); q.push({7, 8}); q.push({7, 7});       
+    //q.push({8, 8}); q.push({8, 7}); q.push({7, 8}); q.push({7, 7});       
 
-    // array<array<bool, 16>, 16> reached = {};
-    // reached[8][8] = reached[8][7] = reached[7][8] = reached[7][7] = true; // Marking the goal cells as reached
+    
+    //reached[8][8] = reached[8][7] = reached[7][8] = reached[7][7] = true; // Marking the goal cells as reached
     
     // BFS to fill the manhattan distances
     while(!q.empty()){
         pair<int,int> cell = q.front();
-        q.pop();
+        q.pop();        
 
         if(cell.first > 15 || cell.second > 15 || cell.first < 0 || cell.second < 0) continue; // out of bounds
 
@@ -202,30 +206,30 @@ static Action solver() {
     // Read sensors from main and update walls
     std::vector<int> distances = getDistances();
     floodfill.detectWalls(distances, curRow, curCol, curDir);
+    int bestDir = -1;
 
     // If you want double-search (return to start after center), toggle reachedCenter here
     if (!reachedCenter && floodfill.atGoal(curRow, curCol)) {
         reachedCenter = true; // center reached (optional behavior)
-        return IDLE;
+        //while(1);
     }
-    else if(reachedCenter && curRow == 0 && curCol == 0) {
-        floodfill.RobotDone = true;
-        return IDLE;    
+    // else if(reachedCenter) {
+    //     floodfill.floodfill(floodfill.maze.reverse_manhattan_distances);
+    //     //floodfill.floodfill(floodfill.maze.manhattan_distances);
+    //     bestDir = floodfill.reverse_getNextMove(curRow, curCol);
+    // }
+    else{
+        // Compute floodfill and choose next direction
+        floodfill.floodfill(floodfill.maze.manhattan_distances);
+        int bestDir = floodfill.getNextMove(curRow, curCol);
+
+
+        // Reached start again; stop moving
+        //floodfill.RobotDone = true;
     }
 
-    // Compute floodfill and choose next direction
-    if (!reachedCenter) {
-        // search phase → goal is center
-        floodfill.floodfill(floodfill.maze.manhattan_distances, 7, 7);
-        int bestDir = floodfill.getNextMove(curRow, curCol);
-        return rotateTo(bestDir);
-    } else {
-        // return phase → goal is start
-        floodfill.floodfill(floodfill.maze.reverse_manhattan_distances, 0, 0);
-        int bestDir = floodfill.reverse_getNextMove(curRow, curCol);
-        return rotateTo(bestDir);
-    }
     
+    return rotateTo(bestDir);
 }
 
 // Perform a single floodfill decision + action; call repeatedly from loop()

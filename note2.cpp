@@ -1,3 +1,7 @@
+// Micromouse floodfill maze-solving algorithm (on-robot variant)
+// Removes MMS Simulator API usage and main(); integrates with robot by:
+// 1) Detecting walls from sensor distances (threshold-based)
+// 2) Providing floodfill() and getNextMove() you can call from your code
 #include <array>
 #include <queue>
 #include <utility>
@@ -206,11 +210,11 @@ static Action solver() {
     // If you want double-search (return to start after center), toggle reachedCenter here
     if (!reachedCenter && floodfill.atGoal(curRow, curCol)) {
         reachedCenter = true; // center reached (optional behavior)
-        return IDLE;
+        while(1);
     }
-    else if(reachedCenter && curRow == 0 && curCol == 0) {
+    else if( reachedCenter && floodfill.atGoal(curRow, curCol)) {
+        // Reached start again; stop moving
         floodfill.RobotDone = true;
-        return IDLE;    
     }
 
     // Compute floodfill and choose next direction

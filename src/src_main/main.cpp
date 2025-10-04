@@ -14,7 +14,7 @@ bool isRobotDone(); // defined in Floodfill module
 
 // Hardware instances
 int xshutPins[] = {32, 17, 16, 15, 4};
-int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
+int sensorCorrections[] = { 0, 16, 0, 43, 26};  // mm to subtract from each sensor
 VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
@@ -53,11 +53,12 @@ void setup() {
 
 void loop() {
   // Run one solver step each tick so loop stays responsive
-  if (!isRobotDone()) {
+  // if (!isRobotDone()) {
+  //   runFloodfillStep();
+  //   delay(20);
+  // }
+  
     runFloodfillStep();
     delay(20);
-  }
 }
 
-
-//hi
