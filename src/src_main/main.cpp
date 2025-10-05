@@ -16,7 +16,7 @@ bool BeginFinalRun();
 
 // Hardware instances
 int xshutPins[] = {32, 17, 16, 15, 4};
-int sensorCorrections[] = { 0, 16, 0, 43, 26};  // mm to subtract from each sensor
+int sensorCorrections[] = { 0, 26, 0, 43, 0};  // mm to subtract from each sensor
 VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
 MotorPIDbyNJ leftMotor(25, 26, 18, 5);
@@ -58,13 +58,13 @@ void setup() {
 void loop() {
   
   if (digitalRead(FINAL_RUN_BUTTON) == HIGH) {  // assuming active HIGH
-      delay(1000);
       BeginFinalRun();
       digitalWrite(33, HIGH);  // turn on buzzer
-      delay(500);
+      delay(1000);
       digitalWrite(33, LOW);
               // reset heading to North
   }
   runFloodfillStep();
+  delay(50); // Small delay to avoid overwhelming the loop
 }
 

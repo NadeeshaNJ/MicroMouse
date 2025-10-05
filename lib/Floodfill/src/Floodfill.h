@@ -27,6 +27,7 @@ public:
     // void setThreshhold(int threshhold) {wall_threshhold = threshhold;}
     bool RobotDone = false;
     bool LastRun = false;
+    bool onlyVisited = false;
 
     void setWall(int row, int col, int direction);
     void detectWalls(vector<int> sensorDistances, int row, int col, int direction);    

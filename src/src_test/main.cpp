@@ -6,7 +6,7 @@
 #include <GyroPID.h>
 
 int xshutPins[] = {32, 17, 16, 15, 4};
-int sensorCorrections[] = { 6, 16, 0, 43, 26};  // mm to subtract from each sensor
+int sensorCorrections[] = { 0, 26, 0, 43, 0};  // mm to subtract from each sensor
 VL6180XManagerV2 sensorGroup(xshutPins, 5, sensorCorrections);
 
 //Floodfill solveMaze;
@@ -53,21 +53,27 @@ void loop() {
   //       runFloodfillRobot();
   //       testMoveDone = true;
   //   }
-  if (!testMoveDone) {
+  // if (!testMoveDone) {
+  sensorGroup.readAll();
+  Serial.println("Trying Serial..");
+  Serial.println("Sensor 1: " + String(sensorGroup.readAll()[0]));
+  Serial.println("Sensor 2: " + String(sensorGroup.readAll()[1])); 
+  Serial.println("Sensor 3: " + String(sensorGroup.readAll()[2]));
+  Serial.println("Sensor 4: " + String(sensorGroup.readAll()[3]));
+  Serial.println("Sensor 5: " + String(sensorGroup.readAll()[4]));
+  //   //Motors.turnLeft();
 
-    //Motors.turnLeft();
-
-    //Motors.moveForward();
-    //Motors.moveForward();
-    Motors.turnRight();
-    Motors.moveForward();
-    Motors.turnRight();
-    Motors.moveForward();
-    Motors.turnRight();
+  //   //Motors.moveForward();
+  //   //Motors.moveForward();
+  //   Motors.turnRight();
+  //   Motors.moveForward();
+  //   Motors.turnRight();
+  //   Motors.moveForward();
+  //   Motors.turnRight();
     
-    testMoveDone = true;
-    Serial.println("Exited");
-  }
+  //   testMoveDone = true;
+  //   Serial.println("Exited");
+  // }
   // ...existing code or idle...
 }
 

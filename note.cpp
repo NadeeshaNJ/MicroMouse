@@ -15,7 +15,9 @@ extern std::vector<int> getDistances(); // returns VL6180X distances: [left,...,
 // Action and robot pose/state (kept here so main.cpp stays minimal)
 enum Action { FORWARD, LEFT, RIGHT, IDLE, AROUND };
 static int curRow = 0, curCol = 0, curDir = 0;  // 0=N,1=E,2=S,3=W
-static bool reachedCenter = false;
+bool reachedCenter = false;
+bool FinalRun = false;
+bool readyToFinalRun = false;
 
 static Floodfill floodfill; // solver instance
 
@@ -74,7 +76,7 @@ void Floodfill::floodfill(array<array<int, 16>, 16> &dist, int goalRow, int goal
     // maze.manhattan_distances[7][8] = 0;
     // maze.manhattan_distances[7][7] = 0; // Goal
     array<array<bool, 16>, 16> reached = {};
-    if(!reachedCenter){
+    if(goalRow == 7 && goalCol == 7){
         dist[7][7] = 0;
         dist[7][8] = 0;
         dist[8][7] = 0;
@@ -104,6 +106,8 @@ void Floodfill::floodfill(array<array<int, 16>, 16> &dist, int goalRow, int goal
         q.pop();
 
         if(cell.first > 15 || cell.second > 15 || cell.first < 0 || cell.second < 0) continue; // out of bounds
+
+        if (onlyVisited && !maze.visited[cell.first][cell.second]) continue;
 
         if(cell.second > 0 && !maze.horizontal_walls[cell.first][cell.second].first && !reached[cell.first][cell.second - 1]) {// No wall to the left
             dist[cell.first][cell.second - 1] = dist[cell.first][cell.second] + 1;
@@ -228,34 +232,59 @@ static Action solver() {
 
     // If you want double-search (return to start after center), toggle reachedCenter here
     if (!reachedCenter && floodfill.atGoal(curRow, curCol)) {
-        reachedCenter = true; // center reached (optional behavior)
+        reachedCenter = true; // center reached   
+        digitalWrite(33, HIGH);
+        delay(300);
+        digitalWrite(33, LOW);     
         return IDLE;
     }
-    else if(reachedCenter && curRow == 0 && curCol == 0) {
+    else if(reachedCenter && curRow == 0 && curCol == 0 && !FinalRun) {
         floodfill.RobotDone = true;
+        readyToFinalRun = true;
+        //------------------------------------------------------
+        //floodfill.floodfill(floodfill.maze.manhattan_distances, 7, 7); //for the final run
         return IDLE;    
     }
-
+    
     // Compute floodfill and choose next direction
-    if (!reachedCenter) {
+    if (!reachedCenter && !readyToFinalRun && !FinalRun) {
         // search phase → goal is center
         floodfill.floodfill(floodfill.maze.manhattan_distances, 7, 7);  
         int bestDir = floodfill.getNextMove(floodfill.maze.manhattan_distances, curRow, curCol);
-        return rotateTo(bestDir);  
-    } else{
+        return rotateTo(bestDir);
+
+    }
+    else if(reachedCenter && !FinalRun){
         // return phase → goal is start
-        floodfill.floodfill(floodfill.maze.reverse_manhattan_distances, 0, 0);
+        floodfill.floodfill(floodfill.maze.reverse_manhattan_distances, 0, 0); 
         int bestDir = floodfill.getNextMove(floodfill.maze.reverse_manhattan_distances, curRow, curCol);
         return rotateTo(bestDir);
     }
+    else if (FinalRun) {
+        //Floodfill is being calculated once when the robot came back to the start(in that if nest)
+        //Final Run phase → goal is center
+        if(!floodfill.atGoal(curRow, curCol)) {
+            int bestDir = floodfill.getNextMove(floodfill.maze.manhattan_distances, curRow, curCol);
+
+            return rotateTo(bestDir); 
+        }else if (floodfill.atGoal(curRow, curCol)) {
+            floodfill.LastRun = true; // finished final run
+            floodfill.RobotDone = true;
+            int bestDir = floodfill.getNextMove(floodfill.maze.reverse_manhattan_distances, curRow, curCol);
+
+            return rotateTo(bestDir);
+        }
+        
+    }
+    //else if(reachedCenter && !FinalRun && !floodfill.atGoal(curRow, curCol)){
     
-    
+    return IDLE;
 }
 
 // Perform a single floodfill decision + action; call repeatedly from loop()
 void runFloodfillStep() {
     // if (floodfill.atGoal(curRow, curCol)) return; // optional early exit
-
+    
     Action action = solver();
     
     if (action == FORWARD) {
@@ -280,3 +309,15 @@ void runFloodfillStep() {
 bool isRobotDone() {
         return floodfill.RobotDone;
     }
+bool BeginFinalRun() {
+        if(!FinalRun) {
+            FinalRun = true;
+            curRow = curCol = 0;  // reset robot position
+            curDir = 0;
+            //reachedCenter = false; // ensure we are in return mode
+            floodfill.onlyVisited = true; // <--- important
+            floodfill.floodfill(floodfill.maze.manhattan_distances, 7, 7); //for the final run
+            return true;
+        }
+        return false;
+}
