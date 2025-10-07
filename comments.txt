@@ -28,3 +28,5 @@ No/low Kd → oscillation persists (undersamped).
 Large Ki → windup and slow oscillation or runaway.
 Sensor noise or quantized angle readings → small D amplifies noise; filter derivative.
 Angle wrap problem (0↔360) → large error jumps unless you normalize the angle (use shortest path).
+
+complete quick run
